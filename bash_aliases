@@ -40,8 +40,11 @@ function dl() {
     ;;
     pivotal\ log* )
       shift 2
+      repo_name=$(basename `git rev-parse --show-toplevel`)
+
       story_ids=$(git log --pretty=oneline | sed 's/.*\(#[0-9]*\).*/\1/' | uniq)
-      php ~/.daftlabs/helpers/pivotal-story-details.php $story_ids 
+
+      php ~/.daftlabs/helpers/pivotal-story-details.php $(dl config $repo_name-pivotal) $(dl config pivotal) $story_ids 
     ;;
     config )
       cat ~/.daftlabs/config 
