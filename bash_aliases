@@ -38,6 +38,11 @@ function dl() {
         fi
       fi
     ;;
+    pivotal\ log* )
+      shift 2
+      story_ids=$(git log --pretty=oneline | sed 's/.*\(#[0-9]*\).*/\1/' | uniq)
+      php ~/.daftlabs/helpers/pivotal-story-details.php $story_ids 
+    ;;
     config )
       cat ~/.daftlabs/config 
     ;;
