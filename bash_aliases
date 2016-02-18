@@ -42,7 +42,15 @@ function dl() {
       shift 2
       repo_name=$(basename `git rev-parse --show-toplevel`)
 
-      story_ids=$(git log --pretty=oneline | sed 's/.*\(#[0-9]*\).*/\1/' | uniq)
+      story_ids=$(git log --pretty=oneline $@ | sed 's/.*\(#[0-9]*\).*/\1/' | uniq)
+      story_count=$(echo -n $(echo "$story_ids" | wc -l))
+
+      echo "found $story_count stories"
+
+      if [ $story_count -gt 20 ]; then
+        echo "truncating to 20 stories for good reasons"
+        story_ids=$(echo "$story_ids" | head -n 20)
+      fi
 
       php ~/.daftlabs/helpers/pivotal-story-details.php $(dl config $repo_name-pivotal) $(dl config pivotal) $story_ids 
     ;;
