@@ -3,3 +3,5 @@ curl -L https://github.com/daftlabs/dl-dev-profile/archive/master.tar.gz | tar -
 
 grep -q -F 'source ~/.daftlabs/bash_aliases' ~/.bash_profile || echo 'source ~/.daftlabs/bash_aliases' >> ~/.bash_profile
 grep -q -F 'source ~/.daftlabs/bash_prompt' ~/.bash_profile || echo 'source ~/.daftlabs/bash_prompt' >> ~/.bash_profile
+
+source ~/.bash_profile
