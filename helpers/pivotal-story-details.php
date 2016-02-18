@@ -2,11 +2,13 @@
 
 $projectId = $argv[1];
 $apiToken = $argv[2];
-$storyIds = array_slice($argv, 3);
+$storyIds = array();
 
-$storyIds = array_map(function($id) {
-  return trim($id, '#');
-}, $storyIds);
+$stdin = fopen('php://stdin', 'r');
+
+while (($line = fgets($stdin)) !== false) {
+  $storyIds[] = trim($line, "#\n");
+}
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "https://www.pivotaltracker.com/services/v5/projects/$projectId/stories?filter=id:" . implode(',', $storyIds));
