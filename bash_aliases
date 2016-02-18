@@ -40,18 +40,24 @@ function dl() {
     ;;
     pivotal\ log* )
       shift 2
-      repo_name=$(basename `git rev-parse --show-toplevel`)
 
-      story_ids=$(git log --pretty=oneline $@ | grep '#[0-9]\+' | sed 's/.*\(#[0-9]*\).*/\1/' | uniq)
+      if git rev-parse --git-dir > /dev/null 2>&1; then
 
-      if [ -n "$story_ids" ]; then
-        story_count=$(echo -n $(echo "$story_ids" | wc -l))
+        repo_name=$(basename `git rev-parse --show-toplevel`)
+
+        story_ids=$(git log --pretty=oneline $@ | grep '#[0-9]\+' | sed 's/.*\(#[0-9]*\).*/\1/' | uniq)
+
+        if [ -n "$story_ids" ]; then
+          story_count=$(echo -n $(echo "$story_ids" | wc -l))
+        else
+          story_count=0
+        fi
+
+        echo "found $story_count stories"
+        echo "$story_ids" | php ~/.daftlabs/helpers/pivotal-story-details.php $(dl config $repo_name-pivotal) $(dl config pivotal)
       else
-        story_count=0
-      fi
-
-      echo "found $story_count stories"
-      echo "$story_ids" | php ~/.daftlabs/helpers/pivotal-story-details.php $(dl config $repo_name-pivotal) $(dl config pivotal)
+        echo "get in a repo dude"
+      fi;
     ;;
     config )
       cat ~/.daftlabs/config 
