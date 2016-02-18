@@ -11,11 +11,18 @@ function dl() {
     ;;
     setup )
       if [ -x $(dl config pivotal) ]; then
-        echo "pivotal token?"; read token;
+        echo "pivotal token? (https://www.pivotaltracker.com/profile)"; read token;
         dl config pivotal $token
       fi
 
-      echo 'done'
+      if git rev-parse --git-dir > /dev/null 2>&1; then
+        repo_name=$(basename `git rev-parse --show-toplevel`)
+
+        if [ -x $(dl config $repo_name-pivotal) ]; then
+          echo "pivotal project id to use for \"$repo_name\"?"; read project_id;
+          dl config $repo_name-pivotal $project_id
+        fi
+      fi
     ;;
     config )
       cat ~/.daftlabs/config 
@@ -30,6 +37,8 @@ function dl() {
     config\ * )
       cat ~/.daftlabs/config | grep ^$2 | sed "s/$2=//"
     ;;
-    * ) echo "not a real thing" ;;
+    * )
+      echo "not a real thing"
+    ;;
   esac
 }
