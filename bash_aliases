@@ -38,14 +38,16 @@ function dl() {
         fi
       fi
     ;;
-    pivotal\ log* )
+    extract\ pivotal-ids )
+      php -r 'preg_match_all("/#[0-9]+/", file_get_contents("php://stdin"), $matches); echo implode("\n", $matches[0]) . "\n";' | uniq
+    ;;
+    pivotal\ details )
       shift 2
 
       if git rev-parse --git-dir > /dev/null 2>&1; then
-
         repo_name=$(basename `git rev-parse --show-toplevel`)
 
-        story_ids=$(git log --pretty=oneline $@ | grep '#[0-9]\+' | sed 's/.*\(#[0-9]*\).*/\1/' | uniq)
+        story_ids=$(dl extract pivotal-ids)
 
         if [ -n "$story_ids" ]; then
           story_count=$(echo -n $(echo "$story_ids" | wc -l))
@@ -54,9 +56,12 @@ function dl() {
         fi
 
         echo "found $story_count stories"
-        echo "$story_ids" | php ~/.daftlabs/helpers/pivotal-story-details.php $(dl config $repo_name-pivotal) $(dl config pivotal)
+
+        if [ $story_count -gt 0 ]; then
+          echo "$story_ids" | php ~/.daftlabs/helpers/pivotal-story-details.php $(dl config $repo_name-pivotal) $(dl config pivotal)
+        fi
       else
-        echo "get in a repo dude"
+        echo "get in a project directory dude"
       fi;
     ;;
     config )
