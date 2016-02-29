@@ -1,7 +1,12 @@
 alias gs='git status'; 
 alias l='ls -lhaG';
+dockerSSH() {
+  docker exec -ti $1 /bin/bash
+}
+
 alias drun="docker-compose run web"
 alias dash="docker-compose run web /bin/bash"
+alias dssh=dockerSSH
 alias dkill="docker kill \$(docker ps -q)"
 
 function dl() {
