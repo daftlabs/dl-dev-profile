@@ -1,5 +1,8 @@
 alias gs='git status'; 
 alias l='ls -lhaG';
+alias drun="docker-compose run web"
+alias dash="docker-compose run web /bin/bash"
+alias dkill="docker kill \$(docker ps -q)"
 
 function dl() {
   case $* in
