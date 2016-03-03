@@ -40,6 +40,8 @@ function dl() {
           fi
         fi
       fi
+
+      cat ~/.daftlabs/hooks/require-pivotal.sh >> .git/hooks/commit-msg && chmod -x .git/hooks/commit-msg
     ;;
     extract\ pivotal-ids )
       php -r 'preg_match_all("/#[0-9]+/", file_get_contents("php://stdin"), $matches); echo implode("\n", $matches[0]) . "\n";' | uniq
