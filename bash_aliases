@@ -44,7 +44,7 @@ function dl() {
       cp ~/.daftlabs/hooks/require-pivotal-commit-msg.sh .git/hooks/commit-msg && chmod -x .git/hooks/commit-msg
     ;;
     extract\ pivotal-ids )
-      php -r 'preg_match_all("/#[0-9]+/", file_get_contents("php://stdin"), $matches); echo implode("\n", $matches[0]) . "\n";' | uniq
+      php -r 'preg_match_all("/\[(\((Finishes|Fixes|Delivers)\) )?#[0-9]+\]/", file_get_contents("php://stdin"), $matches); echo implode("\n", $matches[0]) . "\n";' | uniq
     ;;
     pivotal\ details )
       shift 2
