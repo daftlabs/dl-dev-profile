@@ -54,7 +54,7 @@ function dl() {
     pivotal\ details )
       shift 2
 
-      if [ -n $(dl config $repo_name-pivotal) ] || [ -n $(dl config pivotal) ]; then
+      if [ -n $(dl config $repo_name-pivotal) ] && [ -n $(dl config pivotal) ]; then
         if git rev-parse --git-dir > /dev/null 2>&1; then
           repo_name=$(basename `git rev-parse --show-toplevel`)
 
