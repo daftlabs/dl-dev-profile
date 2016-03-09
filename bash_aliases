@@ -54,9 +54,10 @@ function dl() {
     pivotal\ details )
       shift 2
 
-      if [ -n $(dl config $repo_name-pivotal) ] && [ -n $(dl config pivotal) ]; then
-        if git rev-parse --git-dir > /dev/null 2>&1; then
-          repo_name=$(basename `git rev-parse --show-toplevel`)
+      if git rev-parse --git-dir > /dev/null 2>&1; then
+        repo_name=$(basename `git rev-parse --show-toplevel`)
+
+        if [ -n $(dl config $repo_name-pivotal) ] && [ -n $(dl config pivotal) ]; then
 
           story_ids=$(dl extract pivotal-ids)
 
@@ -72,11 +73,11 @@ function dl() {
             echo "$story_ids" | php ~/.daftlabs/helpers/pivotal-story-details.php $(dl config $repo_name-pivotal) $(dl config pivotal)
           fi
         else
-          echo "get in a project directory dude"
-        fi;
+          echo "required configurations not present - run dl setup"
+        fi
       else
-        echo "required configurations not present - run dl setup"
-      fi
+        echo "get in a project directory dude"
+      fi;
     ;;
     config )
       cat ~/.daftlabs/config 
