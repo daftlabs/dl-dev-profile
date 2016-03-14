@@ -1,13 +1,13 @@
 alias gs='git status'; 
 alias l='ls -lhaG';
 
-dssh() {
+dSSH() {
   docker exec -ti $1 /bin/bash
 }
 
 alias drun="docker-compose run web"
 alias dash="docker-compose run web /bin/bash"
-alias dssh=dssh
+alias dssh=dSSH
 alias dkill="docker kill \$(docker ps -q)"
 alias drmc="docker rm \$(docker ps -aq)"
 alias drmi="docker rmi \$(docker images -q)"
