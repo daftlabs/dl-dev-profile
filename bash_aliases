@@ -1,6 +1,20 @@
 alias gs='git status'; 
 alias l='ls -lhaG';
 
+gc() {
+  branch_name=`git symbolic-ref --short HEAD`
+  pivotal_id=`echo $branch_name | sed -En 's/^([0-9]{7,}).*$/\1/p'`
+  if [ -z "$pivotal_id" ]; then
+    if [ -z "$2" ]; then
+      echo 'No Pivotal Id detected in branch name, please supply pivotal ID and commit message'
+    else
+      git commit -m "[#$1] $2"
+    fi
+  else
+    git commit -m "[#$pivotal_id] $1"
+  fi
+}
+
 dSSH() {
   docker exec -ti $1 /bin/bash
 }
