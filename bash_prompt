@@ -10,12 +10,13 @@ LGREEN="\[\e[1;32m\]"
 WHITE="\[\e[0;37m\]"
 PURPLE="\[\e[0;35m\]"
 BLUE="\[\e[1;34m\]"
+
 function ref() {
-  git branch --no-color 2 > /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\[\1\]/' || return
+  git branch --no-color 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\[\1\]/' || return
 }
 
 function sha() {
-  git rev-parse --short HEAD 2 > /dev/null | sed -e 's/\(.*\)/\[\1\]/' || return
+  git rev-parse --short HEAD 2>/dev/null | sed -e 's/\(.*\)/\[\1\]/' || return
 }
 
 PS1="$GREEN\u@\h$CYAN\$(ref)$PURPLE\$(sha)$BLUE\w\[\e[0m\]: "
