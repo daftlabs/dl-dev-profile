@@ -1,4 +1,6 @@
-alias gs='git status'; 
+#!/usr/bin/env bash
+
+alias gs='git status';
 alias l='ls -lhaG';
 
 gc() {
@@ -28,15 +30,16 @@ alias drmi="docker rmi \$(docker images -q)"
 
 function dl() {
   case $* in
-    update )
+    update)
       sh ~/.daftlabs/install.sh
     ;;
-    releases )
+    releases)
       git tag | xargs -I@ git log --format=format:"%ai @%n" -1 @ | sort -r | awk '{print $4}' | head -n 25
     ;;
-    setup )
+    setup)
       if [ -z $(dl config pivotal) ]; then
-        echo "pivotal token? (https://www.pivotaltracker.com/profile)"; read token;
+        echo "pivotal token? (https://www.pivotaltracker.com/profile)";
+        read token;
         if [ -n $token ]; then
           dl config pivotal $token
         fi
@@ -46,34 +49,37 @@ function dl() {
         repo_name=$(basename `git rev-parse --show-toplevel`)
 
         if [ -z $(dl config $repo_name-pivotal) ]; then
-          echo "pivotal project id to use for \"$repo_name\"?"; read project_id;
+          echo "pivotal project id to use for \"$repo_name\"?";
+          read project_id;
           if [ -n $project_id ]; then
             dl config $repo_name-pivotal $project_id
           fi
         fi
 
         if [ -z $(dl config $repo_name-aws-key) ] || [ -z $(dl config $repo_name-aws-key-id) ]; then
-          echo "aws key id to use for \"$repo_name\"?"; read key_id;
-          echo "aws key to use for \"$repo_name\"?"; read key;
+          echo "aws key id to use for \"$repo_name\"?";
+          read key_id;
+          echo "aws key to use for \"$repo_name\"?";
+          read key;
 
           if [ -n $key_id ] && [ -n $key ]; then
-            dl config $repo_name-aws-key-id $key_id 
+            dl config $repo_name-aws-key-id $key_id
             dl config $repo_name-aws-key $key
           fi
         fi
       fi
 
-      if [ -n "$(ls -a | grep ^\.git$)" ]; then
+      if [ -n "$(ls-a|grep^\.git$)" ]; then
         echo "Installing githooks"
         cp ~/.daftlabs/hooks/require-pivotal-commit-msg.sh .git/hooks/commit-msg && chmod -R 755 .git/hooks
       else
         echo "Not installing githooks, .git directory missing."
       fi
     ;;
-    extract\ pivotal-ids )
+    extract\ pivotal-ids)
       php -r 'preg_match_all("/\[(\((Finishes|Fixes|Delivers)\) )?#[0-9]+\]/", file_get_contents("php://stdin"), $matches); echo implode("\n", $matches[0]) . "\n";' | uniq
     ;;
-    pivotal\ details )
+    pivotal\ details)
       shift 2
 
       if git rev-parse --git-dir > /dev/null 2>&1; then
@@ -101,20 +107,20 @@ function dl() {
         echo "get in a project directory dude"
       fi;
     ;;
-    config )
-      cat ~/.daftlabs/config 
+    config)
+      cat ~/.daftlabs/config
     ;;
-    config\ --rm\ * )
-      cat ~/.daftlabs/config | grep -v "^$3=" > tmp; mv tmp ~/.daftlabs/config 
+    config\ --rm\ *)
+      cat ~/.daftlabs/config | grep -v "^$3=" > tmp; mv tmp ~/.daftlabs/config
     ;;
-    config\ *\ * )
+    config\ *\ *)
       dl config --rm $2
       echo "$2=$3" >> ~/.daftlabs/config
     ;;
-    config\ * )
+    config\ *)
       cat ~/.daftlabs/config | grep "^$2=" | sed "s/$2=//"
     ;;
-    * )
+    *)
       echo "not a real thing"
     ;;
   esac
