@@ -12,7 +12,7 @@ $service = $aws->findService($serviceName);
 $task = $aws->findServiceTask($service);
 $taskDefinition = $aws->findTaskDefinition($task);
 $version = array_pop(explode(':', $taskDefinition['containerDefinitions'][0]['image']));
-$backup = "{$serviceName}-{$version}-" . date('Y-m-d G:i:s') . '.sql';
+$backup = "{$serviceName}-{$version}-" . date('Y-m-d-G:i:s') . '.sql';
 
 $env = [];
 foreach ($taskDefinition['containerDefinitions'][0]['environment'] as $envVar) {
@@ -33,7 +33,8 @@ $exportCmd = implode(' ', [
     "{$db['name']} > " . __DIR__ . "/../db-backups/{$backup}"
 ]);
 
-echo $exportCmd;
+echo $exportCmd . "\n";
+echo shell_exec($exportCmd);
 
 function arrayPluck($arr, array $keys = [])
 {
