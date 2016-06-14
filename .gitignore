@@ -3,3 +3,4 @@ config
 .idea
 _ide_helper.php
 *.swp
+db-backups/*

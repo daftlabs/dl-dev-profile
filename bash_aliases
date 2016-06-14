@@ -50,6 +50,9 @@ function dl() {
     ecs-ssh)
       php ~/.daftlabs/aliases/ecs-ssh.php "$@"
     ;;
+    ecs-deploy)
+      php ~/.daftlabs/aliases/ecs-deploy.php "$@"
+    ;;
     config)
       sh ~/.daftlabs/aliases/config.sh "$@"
     ;;
