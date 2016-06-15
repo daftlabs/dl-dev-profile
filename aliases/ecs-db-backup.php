@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('America/New_York');
 
-$AwsGateway = require(__DIR__ . '/../services/awsGateway.php');
+$AwsGateway = require_once __DIR__ . '/../services/awsGateway.php';
 
 $aws = new AwsGateway();
 $project = $argv[1];

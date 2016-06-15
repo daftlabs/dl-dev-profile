@@ -1,7 +1,9 @@
 <?php
 date_default_timezone_set('America/New_York');
 
-$AwsGateway = require(__DIR__ . '/../services/awsGateway.php');
+require_once __DIR__ . '/ecs-db-backup.php';
+
+$AwsGateway = require_once __DIR__ . '/../services/awsGateway.php';
 
 $aws = new AwsGateway();
 $project = $argv[1];
@@ -12,7 +14,7 @@ $serviceName = "{$project}-{$environment}";
 $service = $aws->findService($serviceName);
 $task = $aws->findServiceTask($service);
 $taskDefinition = $aws->findTaskDefinition($task);
-$newTaskDefinition = buildNewTaskDefiniton($taskDefinition, $version);
+$newTaskDefinition = buildNewTaskDefinition($taskDefinition, $version);
 $newTask = $aws->registerTask($newTaskDefinition['family'], $newTaskDefinition['containerDefinitions']);
 $updatedService = $aws->updateService($service, $newTask);
 if ($updatedService) {
@@ -21,7 +23,7 @@ if ($updatedService) {
     echo "Failed to start deploying.\n";
 }
 
-function buildNewTaskDefiniton(array $oldTask, $newVersion)
+function buildNewTaskDefinition(array $oldTask, $newVersion)
 {
     $newTask = [
         'family' => $oldTask['family'],
