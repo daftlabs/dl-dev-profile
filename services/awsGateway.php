@@ -2,6 +2,14 @@
 
 class AwsGateway
 {
+    const REGION = 'us-east-1';
+    private $profile;
+
+    public function __construct($profile)
+    {
+        $this->profile = trim($profile);
+    }
+
     public function findService($serviceName)
     {
         $services = [];
@@ -93,7 +101,7 @@ class AwsGateway
 
     private function awsCmd($cmd, array $options = [])
     {
-        $options = array_merge($options, ['output' => 'json']);
+        $options = array_merge($options, ['output' => 'json', 'profile' => $this->profile, 'region' => static::REGION]);
         foreach ($options as $key => $val) {
             $cmd .= is_array($val) ? " --{$key} " . implode(' ', $val) : " --{$key}={$val}";
         }
