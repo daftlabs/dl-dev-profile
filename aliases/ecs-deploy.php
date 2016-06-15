@@ -29,12 +29,11 @@ function buildNewTaskDefinition(array $oldTask, $newVersion)
         'family' => $oldTask['family'],
         'containerDefinitions' => $oldTask['containerDefinitions']
     ];
-    foreach ($newTask['containerDefinitions'] as &$containerDefinition) {
-        $containerDefinition['image'] = implode(':', [array_shift(explode(':', $containerDefinition['image'])), $newVersion]);
-        foreach ($containerDefinition['environment'] as &$envVar) {
-            if ($envVar['name'] === 'APP_VERSION') {
-                $envVar['value'] = $newVersion;
-            }
+    $url = array_shift(explode(':', $newTask['containerDefinitions'][0]['image']));
+    $newTask['containerDefinitions'][0]['image'] = implode(':', [$url, $newVersion]);
+    foreach ($newTask['containerDefinitions'][0]['environment'] as &$envVar) {
+        if ($envVar['name'] === 'APP_VERSION') {
+            $envVar['value'] = $newVersion;
         }
     }
     return $newTask;
