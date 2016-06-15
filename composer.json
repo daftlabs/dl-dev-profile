@@ -1,0 +1,14 @@
+{
+    "name": "daftlabs/cli",
+    "description": "A CLI for all Daft Labs-related goodness.",
+    "type": "project",
+    "require": {
+        "aws/aws-sdk-php": "^3.18",
+        "symfony/console": "3.1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Daftswag\\": "src/"
+        }
+    }
+}
