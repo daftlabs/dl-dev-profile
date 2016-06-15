@@ -14,8 +14,12 @@ $task = $aws->findServiceTask($service);
 $taskDefinition = $aws->findTaskDefinition($task);
 $newTaskDefinition = buildNewTaskDefiniton($taskDefinition, $version);
 $newTask = $aws->registerTask($newTaskDefinition['family'], $newTaskDefinition['containerDefinitions']);
-print_r($newTask);
-die();
+$updatedService = $aws->updateService($service, $newTask);
+if ($updatedService) {
+    echo "Deploying {$updatedService ['taskDefinition']}.\n";
+} else {
+    echo "Failed to start deploying.\n";
+}
 
 function buildNewTaskDefiniton(array $oldTask, $newVersion)
 {

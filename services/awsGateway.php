@@ -18,6 +18,15 @@ class AwsGateway
         return $service;
     }
 
+    public function updateService($service, $task)
+    {
+        return $this->ecsCmd('update-service', [
+            'cluster' => $service['clusterArn'],
+            'service' => $service['serviceName'],
+            'task-definition' => $task['taskDefinitionArn'],
+        ])['service'];
+    }
+
     public function findServiceTask(array $service)
     {
         $ARNs = $this->ecsCmd('list-tasks', ['cluster' => $service['clusterArn'], 'service-name' => $service['serviceName']]);
@@ -64,7 +73,7 @@ class AwsGateway
             'container-definitions' => array_map(function ($container) {
                 return "'" . json_encode($container) . "'";
             }, $containers)
-        ]);
+        ])['taskDefinition'];
     }
 
     private function nameFromArn($arn)
