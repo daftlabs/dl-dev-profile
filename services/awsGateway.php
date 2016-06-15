@@ -18,7 +18,7 @@ class AwsGateway
         return $service;
     }
 
-    public function findServiceTask($service)
+    public function findServiceTask(array $service)
     {
         $ARNs = $this->ecsCmd('list-tasks', ['cluster' => $service['clusterArn'], 'service-name' => $service['serviceName']]);
         $tasks = $this->ecsCmd('describe-tasks', ['cluster' => $service['clusterArn'], 'tasks' => $ARNs['taskArns']]);
@@ -32,7 +32,12 @@ class AwsGateway
         return array_filter(array_map([$this, 'nameFromArn'], $this->ecsCmd('list-clusters')['clusterArns']));
     }
 
-    public function findContainerHosts($task)
+    public function findTaskDefinition(array $task)
+    {
+        return $this->ecsCmd('describe-task-definition', ['task-definition' => $this->nameFromArn($task['taskDefinitionArn'])])['taskDefinition'];
+    }
+
+    public function findContainerHosts(array $task)
     {
         $hosts = [];
         $instances = $this->ecsCmd('describe-container-instances', ['container-instances' => $task['containerInstanceArn']]);
