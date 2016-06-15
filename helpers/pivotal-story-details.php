@@ -7,14 +7,14 @@ $storyIds = array();
 $stdin = fopen('php://stdin', 'r');
 
 while (($line = fgets($stdin)) !== false) {
-  $storyIds[] = trim($line, "#\n");
+    $storyIds[] = trim($line, "#\n");
 }
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "https://www.pivotaltracker.com/services/v5/projects/$projectId/stories?filter=id:" . implode(',', $storyIds));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-  "X-TrackerToken: $apiToken",
+    "X-TrackerToken: $apiToken",
 ));
 $response = curl_exec($ch);
 curl_close($ch);
@@ -24,22 +24,21 @@ $storyData = json_decode($response);
 $mask = "| %-10.10s| %-70.70s| %-30.30s | %-30s \n";
 printf($mask, 'Id', 'Title', 'Labels', 'Url');
 foreach ($storyData as $story) {
-  $labels = [];
+    $labels = [];
 
-  if ($story->labels) {
-      $labels = array_map(function($label) {
-        return $label->name;
-      }, $story->labels);
-  }
-
-  $titleLines = explode("\n", wordwrap($story->name, 70));
-
-  foreach ($titleLines as $key => $titleLine) {
-    if ($key == 0) {
-      printf($mask, $story->id, $titleLine, implode(', ', $labels), $story->url);
+    if ($story->labels) {
+        $labels = array_map(function ($label) {
+            return $label->name;
+        }, $story->labels);
     }
-    else {
-      printf($mask, '', $titleLine, '', '');
+
+    $titleLines = explode("\n", wordwrap($story->name, 70));
+
+    foreach ($titleLines as $key => $titleLine) {
+        if ($key == 0) {
+            printf($mask, $story->id, $titleLine, implode(', ', $labels), $story->url);
+        } else {
+            printf($mask, '', $titleLine, '', '');
+        }
     }
-  }
 }
