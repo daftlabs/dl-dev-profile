@@ -53,6 +53,9 @@ function dl() {
     ecs-db-backup)
       php ~/.daftlabs/aliases/ecs-db-backup.php "$@"
     ;;
+    ecs-deploy)
+      php ~/.daftlabs/aliases/ecs-deploy.php "$@"
+    ;;
     config)
       sh ~/.daftlabs/aliases/config.sh "$@"
     ;;
