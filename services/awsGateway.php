@@ -57,6 +57,16 @@ class AwsGateway
         return shell_exec("ssh ec2-user@{$host} -i ~/.ssh/ecs.pem '$cmd'");
     }
 
+    public function registerTask($family, array $containers)
+    {
+        return $this->ecsCmd('register-task-definition', [
+            'family' => $family,
+            'container-definitions' => array_map(function ($container) {
+                return "'" . json_encode($container) . "'";
+            }, $containers)
+        ]);
+    }
+
     private function nameFromArn($arn)
     {
         return end(explode("/", $arn));
