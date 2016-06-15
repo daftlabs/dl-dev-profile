@@ -2,7 +2,7 @@
 
 $AwsGateway = require_once __DIR__ . '/../services/awsGateway.php';
 
-$aws = new AwsGateway();
+$aws = new AwsGateway(shell_exec('basename `git rev-parse --show-toplevel`'));
 $project = $argv[1];
 $environment = $argv[2];
 $cmd = implode(' ', array_slice($argv, 3));
