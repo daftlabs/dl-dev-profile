@@ -48,7 +48,7 @@ class DbBackup extends Command
         $service = $this->ecsGateway->findService($serviceName);
         $taskDefinition = $this->ecsGateway->findServiceTaskDefinition($service);
         $version = array_pop(explode(':', $taskDefinition['containerDefinitions'][0]['image']));
-        $backup = implode('.', [$serviceName, $version, date('Y-m-d G:i:s'), 'sql']);
+        $backup = implode('.', [$serviceName, $version, date('Y-m-d-G:i:s'), 'sql']);
         $env = [];
         foreach ($taskDefinition['containerDefinitions'][0]['environment'] as $envVar) {
             $env[$envVar['name']] = $envVar['value'];
