@@ -7,13 +7,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Releases extends Command
 {
-    const OPT_LIMIT = 'limit';
+    const OPT_LIMIT = 'number';
 
     protected function configure()
     {
         $this
             ->setDescription('List Git releases.')
-            ->addOption(static::OPT_LIMIT, 'l', InputOption::VALUE_OPTIONAL, 'limits the number of results returned', 5);
+            ->addOption(static::OPT_LIMIT, 'n', InputOption::VALUE_OPTIONAL, 'The number of results returned', 5);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

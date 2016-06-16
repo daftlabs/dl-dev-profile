@@ -35,10 +35,6 @@ class Setup extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if (!in_array('.git', scandir(getcwd()))) {
-            throw new Exception('Must be in project root, .git directory not present.');
-        }
-
         $ask = $this->getPrompt($input, $output);
         foreach ($this->globalQuestions as $key => $question) {
             $this->globalConfig->set($key, $ask($question, $this->globalConfig->get($key)));
