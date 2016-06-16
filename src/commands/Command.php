@@ -17,9 +17,9 @@ abstract class Command extends SymphonyCommand
     public function __construct($name = null)
     {
         parent::__construct($name);
-        $this->project = trim(shell_exec('basename `git rev-parse --show-toplevel`'));
+        $this->project = trim(shell_exec('basename `git rev-parse --show-toplevel 2>/dev/null` 2>/dev/null'));
         if (!$this->project) {
-            die('Project not found.');
+            die("Project not found. Where's the .git directory?\n");
         }
         $this->config = new Config($this->project);
     }
