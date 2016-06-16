@@ -2,12 +2,12 @@
 namespace Daftswag\Commands;
 
 use Daftswag\Helpers\Config;
+use Exception;
 use Symfony\Component\Console\Command\Command as SymphonyCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
-use Exception;
 
 abstract class Command extends SymphonyCommand
 {
@@ -29,7 +29,7 @@ abstract class Command extends SymphonyCommand
         /** @var QuestionHelper $questionHelper */
         $questionHelper = $this->getHelper('question');
         return function ($text, $default = null) use ($input, $output, $questionHelper) {
-            $text .= $default ? " ({$default}):" : ':';
+            $text .= $default ? " [{$default}]:" : ':';
             return $questionHelper->ask($input, $output, new Question($text, $default));
         };
     }

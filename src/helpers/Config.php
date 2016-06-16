@@ -9,7 +9,7 @@ class Config
     private $namespace;
     private $file;
 
-    public function __construct($namespace = 'default')
+    public function __construct($namespace = 'global')
     {
         $this->namespace = $namespace;
         $this->file = __DIR__ . "/../../config/{$this->namespace}.config";
