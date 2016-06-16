@@ -7,6 +7,7 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Exception;
 
 abstract class Command extends SymphonyCommand
 {
@@ -17,6 +18,9 @@ abstract class Command extends SymphonyCommand
     {
         parent::__construct($name);
         $this->project = trim(shell_exec('basename `git rev-parse --show-toplevel`'));
+        if (!$this->project) {
+            throw new Exception('Project not found.');
+        }
         $this->config = new Config($this->project);
     }
 

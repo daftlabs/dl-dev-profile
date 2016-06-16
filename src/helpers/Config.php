@@ -3,10 +3,13 @@ namespace Daftswag\Helpers;
 
 class Config
 {
+    const AWS_ID = 'aws_access_key_id';
+    const AWS_KEY = 'aws_secret_access_key';
+
     private $namespace;
     private $file;
     private $awsFile;
-    private $awsConfigKeys = ['aws_access_key_id', 'aws_secret_access_key'];
+    private $awsConfigKeys = [self::AWS_ID, self::AWS_KEY];
 
     public function __construct($namespace = 'default')
     {
@@ -74,8 +77,8 @@ class Config
 
         if ($profile) {
             return array_key_exists($profile, $config) ? $config[$profile] : [
-                'aws_access_key_id' => null,
-                'aws_secret_access_key' => null,
+                static::AWS_ID => null,
+                static::AWS_KEY => null,
             ];
         }
         return $config;
