@@ -23,7 +23,7 @@ class PivotalDetails extends Command
     protected function configure()
     {
         $this
-            ->setDescription('List details if a pivotal story.')
+            ->setDescription('List details of pivotal stories.')
             ->addArgument(
                 static::ARG_PIVOTAL_IDS,
                 InputArgument::IS_ARRAY,
