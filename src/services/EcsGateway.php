@@ -4,28 +4,22 @@ namespace Daftswag\Services;
 use Aws\Ecs\EcsClient;
 use Daftswag\Helpers\Config;
 
-class EcsGateway
+class EcsGateway extends AwsGateway
 {
     private $client;
 
     public function __construct($profile)
     {
-        $config = new Config($profile);
-        $this->client = new EcsClient([
-            'version' => 'latest',
-            'region' => 'us-east-1',
-            'credentials' => [
-                'key' => $config->get(Config::AWS_ID),
-                'secret' => $config->get(Config::AWS_KEY),
-            ]
-        ]);
+        parent::__construct($profile);
+        $this->client = new EcsClient($this->getAwsConfig());
     }
 
     public function findService($serviceName)
     {
         foreach ($this->listClusters() as $clusterArn) {
             $args = ['cluster' => $clusterArn, 'services' => [$serviceName]];
-            if ($service = array_shift($this->client->describeServices($args)->get('services'))) {
+            $service = array_shift($this->client->describeServices($args)->get('services'));
+            if ($service && $service['status'] == 'ACTIVE') {
                 unset($service['events']);
                 return $service;
             }
@@ -36,15 +30,17 @@ class EcsGateway
 
     public function getInstanceIdsByService($service)
     {
-        $args = ['cluster' => $service['clusterArn'], 'service-name' => $service['serviceName']];
+        $args = ['cluster' => $service['clusterArn'], 'serviceName' => $service['serviceName']];
         $taskArns = $this->client->listTasks($args)->get('taskArns');
-        $task = array_shift($this->client->describeTasks(['tasks' => $taskArns])->get('tasks'));
+        $task = array_shift($this->client->describeTasks(['cluster' => $service['clusterArn'], 'tasks' => $taskArns])->get('tasks'));
         $containers = $this->client
-            ->describeContainerInstances(['containerInstances' => [$task['containerInstanceArn']]])
+            ->describeContainerInstances(['cluster' => $service['clusterArn'], 'containerInstances' => [$task['containerInstanceArn']]])
             ->get('containerInstances');
         $instanceIds = array_map(function ($container) {
             return $container['ec2InstanceId'];
         }, $containers);
+
+
         return $instanceIds;
     }
 
