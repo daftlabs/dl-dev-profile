@@ -44,6 +44,7 @@ class Deploy extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->getApplication()->find('db-backup')->execute($input, $output);
         $this->ecsGateway = new EcsGateway($this->project);
 
         $project = $input->getArgument(static::ARG_PROJECT);
