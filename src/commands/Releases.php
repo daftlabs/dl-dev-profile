@@ -12,7 +12,6 @@ class Releases extends Command
     protected function configure()
     {
         $this
-            ->setName('releases')
             ->setDescription('List Git releases.')
             ->addOption(static::OPT_LIMIT, 'l', InputOption::VALUE_OPTIONAL, 'limits the number of results returned', 5);
     }

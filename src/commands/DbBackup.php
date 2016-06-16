@@ -1,17 +1,17 @@
 <?php
 namespace Daftswag\Commands;
 
+use Daftswag\Helpers\Arr;
 use Daftswag\Services\Ec2Gateway;
 use Daftswag\Services\EcsGateway;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Ssh extends Command
+class DbBackup extends Command
 {
     const ARG_PROJECT = 'project';
     const ARG_ENV = 'env';
-    const ARG_CMD = 'cmd';
 
     private $ecsGateway;
     private $ec2Gateway;
@@ -24,7 +24,7 @@ class Ssh extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Run a bash command in ECS containers for a service.')
+            ->setDescription('Download a mysqldump of a project.')
             ->addArgument(
                 static::ARG_PROJECT,
                 InputArgument::REQUIRED,
@@ -34,11 +34,6 @@ class Ssh extends Command
                 static::ARG_ENV,
                 InputArgument::REQUIRED,
                 'Project environment (reference ECS service name)'
-            )
-            ->addArgument(
-                static::ARG_CMD,
-                InputArgument::REQUIRED,
-                'The command to be run on the various ECS containers.'
             );
     }
 
@@ -51,18 +46,27 @@ class Ssh extends Command
         $env = $input->getArgument(static::ARG_ENV);
         $serviceName = "{$project}-{$env}";
         $service = $this->ecsGateway->findService($serviceName);
-        $instanceIds = $this->ecsGateway->getInstanceIdsByService($service);
-        $hosts = $this->ec2Gateway->getHosts($instanceIds);
-
-        foreach ($hosts as $host) {
-            foreach (explode("\n", $this->ec2Gateway->runCmd($host, 'docker ps')) as $containerDescription) {
-                if (stristr($containerDescription, $serviceName)) {
-                    $description = preg_split('/\s{2,}/', $containerDescription);
-                    $res = $this->ec2Gateway->runCmd($host, "docker exec -i {$description[0]} {$input->getArgument(static::ARG_CMD)}");
-                    echo implode("\n", ['==============', $host, '==============', $res]) . "\n";
-                    break;
-                }
-            }
+        $taskDefinition = $this->ecsGateway->findServiceTaskDefinition($service);
+        $version = array_pop(explode(':', $taskDefinition['containerDefinitions'][0]['image']));
+        $backup = implode('.', [$serviceName, $version, date('Y-m-d G:i:s'), 'sql']);
+        $env = [];
+        foreach ($taskDefinition['containerDefinitions'][0]['environment'] as $envVar) {
+            $env[$envVar['name']] = $envVar['value'];
         }
+        $db = [
+            'user' => Arr::pluck($env, ['DB_USER', 'DB_USERNAME', 'MYSQL_USER', 'MYSQL_USERNAME']),
+            'pass' => Arr::pluck($env, ['DB_PASS', 'DB_PASSWORD', 'MYSQL_PASS', 'MYSQL_PASSWORD']),
+            'host' => Arr::pluck($env, ['DB_HOST', 'MYSQL_HOST']),
+            'name' => Arr::pluck($env, ['DB_NAME', 'DB_DATABASE', 'MYSQL_NAME', 'MYSQL_DATABASE']),
+        ];
+        $exportCmd = implode(' ', [
+            'mysqldump',
+            "-u {$db['user']}",
+            "-p{$db['pass']}",
+            "-h {$db['host']}",
+            "{$db['name']} > " . __DIR__ . "/../../db-backups/{$backup}"
+        ]);
+        echo $exportCmd . "\n";
+        echo shell_exec($exportCmd);
     }
 }

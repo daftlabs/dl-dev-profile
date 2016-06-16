@@ -47,7 +47,7 @@ class EcsGateway extends AwsGateway
     public function findServiceTaskDefinition($service)
     {
         return $this->client
-            ->describeTaskDefinition(['taskDefinition' => $service['taskDefinition']])
+            ->describeTaskDefinition(['cluster' => $service['clusterArn'], 'taskDefinition' => $service['taskDefinition']])
             ->get('taskDefinition');
     }
 
