@@ -13,9 +13,9 @@ class Setup extends Command
     {
         parent::__construct($name);
         $this->configQuestions = [
-            'pivotal-id' => "Pivotal project id for {$this->project}:",
-            'aws-key' => "Your AWS access key id for {$this->project}:",
-            'aws-secret' => "Your AWS secret access key for {$this->project}:",
+            'pivotal_id' => "Pivotal project id for {$this->project}",
+            'aws_access_key_id' => "Your AWS access key id for {$this->project}",
+            'aws_secret_access_key' => "Your AWS secret access key for {$this->project}",
         ];
     }
 

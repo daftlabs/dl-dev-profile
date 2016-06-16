@@ -25,6 +25,7 @@ abstract class Command extends SymphonyCommand
         /** @var QuestionHelper $questionHelper */
         $questionHelper = $this->getHelper('question');
         return function ($text, $default = null) use ($input, $output, $questionHelper) {
+            $text .= $default ? " ({$default}):" : ':';
             return $questionHelper->ask($input, $output, new Question($text, $default));
         };
     }
