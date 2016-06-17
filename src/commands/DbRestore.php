@@ -25,6 +25,7 @@ class DbRestore extends DbCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->getApplication()->find('db-backup')->execute($input, $output);
         $this->ecsGateway = new EcsGateway($this->project);
 
         $service = $this->ecsGateway->findService($this->getServiceName($input));
