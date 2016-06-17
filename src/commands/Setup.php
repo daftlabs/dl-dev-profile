@@ -27,9 +27,7 @@ class Setup extends Command
 
     protected function configure()
     {
-        $this
-            ->setName('setup')
-            ->setDescription('Initialize a repository');
+        $this->setDescription('Initialize a repository');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
