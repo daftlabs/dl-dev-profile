@@ -9,13 +9,13 @@ $application = new Application();
 
 foreach (scandir(__DIR__ . '/commands') as $command) {
     if (substr($command, -4) === '.php') {
-        require_once __DIR__ . "/commands/{$command}";
         $filename = substr($command, 0, strlen($command) - 4);
-        $commandName = strtolower(implode('-', preg_split('/(?=[A-Z])/', $filename, -1, PREG_SPLIT_NO_EMPTY)));
         $className = "\\Daftswag\\Commands\\{$filename}";
-        if (!(new ReflectionClass($className))->isAbstract()) {
-            $application->add(new $className($commandName));
+        if ((new ReflectionClass($className))->isAbstract()) {
+            continue;
         }
+        $commandName = strtolower(implode('-', preg_split('/(?=[A-Z])/', $filename, -1, PREG_SPLIT_NO_EMPTY)));
+        $application->add(new $className($commandName));
     }
 }
 

@@ -2,7 +2,6 @@
 namespace Daftswag\Commands;
 
 use Daftswag\Helpers\Config;
-use Exception;
 use Symfony\Component\Console\Command\Command as SymphonyCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
