@@ -55,4 +55,21 @@ class EcsGateway extends AwsGateway
     {
         return $this->client->listClusters()->get('clusterArns');
     }
+
+    public function registerTask($family, array $containerDefinitions)
+    {
+        return $this->client->registerTaskDefinition([
+            'family' => $family,
+            'containerDefinitions' => $containerDefinitions,
+        ])->get('taskDefinition');
+    }
+
+    public function updateService(array $service, array $task)
+    {
+        return $this->client->updateService([
+            'cluster' => $service['clusterArn'],
+            'service' => $service['serviceName'],
+            'taskDefinition' => $task['taskDefinitionArn'],
+        ])->get('service');
+    }
 }
