@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-HERE=`cwd`
+THERE=$PWD
 
 #download app
 mkdir -p ~/.daftlabs
@@ -15,4 +15,4 @@ curl -sS https://getcomposer.org/installer | php
 brew install mysql
 
 source ~/.bash_profile
-cd $HERE
+cd $THERE
