@@ -30,15 +30,16 @@ class DbRestore extends DbCommand
         $service = $this->ecsGateway->findService($this->getServiceName($input));
         $taskDefinition = $this->ecsGateway->findServiceTaskDefinition($service);
         $db = $this->buildDbConfig($taskDefinition);
-        $cmd = implode(' ', [
+        $connectCmd = implode(' ', [
             'mysql',
             "-u {$db['user']}",
             "-p{$db['pass']}",
             "-h {$db['host']}",
-            "{$db['name']} < {$input->getArgument(static::ARG_FILE)}"
-        ]);
 
-        echo "{$cmd}\n";
-        echo shell_exec($cmd);
+        ]);
+        $dropCmd = "{$connectCmd} -e \"DROP DATABASE {$db['name']}; CREATE DATABASE {$db['name']};\"";
+        $restoreCmd = "{$connectCmd} {$db['name']} < {$input->getArgument(static::ARG_FILE)}";
+        $this->exec($dropCmd);
+        $this->exec($restoreCmd);
     }
 }

@@ -34,7 +34,6 @@ class DbBackup extends DbCommand
             "{$db['name']} > " . __DIR__ . "/../../db-backups/{$backup}"
         ]);
 
-        echo "{$cmd}\n";
-        echo shell_exec($cmd);
+        $this->exec($cmd);
     }
 }

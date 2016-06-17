@@ -43,4 +43,10 @@ abstract class DbCommand extends Command
             'name' => Arr::pluck($env, ['DB_NAME', 'DB_DATABASE', 'MYSQL_NAME', 'MYSQL_DATABASE']),
         ];
     }
+
+    protected function exec($cmd)
+    {
+        echo "{$cmd}\n";
+        return shell_exec($cmd);
+    }
 }
