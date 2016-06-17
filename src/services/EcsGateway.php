@@ -2,7 +2,6 @@
 namespace Daftswag\Services;
 
 use Aws\Ecs\EcsClient;
-use Daftswag\Helpers\Config;
 
 class EcsGateway extends AwsGateway
 {

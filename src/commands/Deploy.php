@@ -1,8 +1,6 @@
 <?php
 namespace Daftswag\Commands;
 
-use Daftswag\Helpers\Arr;
-use Daftswag\Services\Ec2Gateway;
 use Daftswag\Services\EcsGateway;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
