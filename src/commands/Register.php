@@ -40,7 +40,7 @@ class Register extends Command
             $this->globalConfig->get('github_token')
         );
         if ($gitUsername = $ask('Github Username to invite')) {
-            $output->writeln($this->gitHubGateway->addUserToTeam('engineers', $gitUsername));
+            $output->writeln($this->gitHubGateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $gitUsername));
         }
 
     }

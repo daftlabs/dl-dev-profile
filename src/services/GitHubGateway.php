@@ -25,7 +25,7 @@ class GitHubGateway
 
     public function addUserToTeam($team, $username)
     {
-        $res = $this->request('/teams/' . static::ENGINEERS_GROUP_ID . "/memberships/{$username}", 'PUT');
+        $res = $this->request("/teams/{$team}/memberships/{$username}", 'PUT');
         return json_decode($res->getBody()->getContents(), true);
     }
 
