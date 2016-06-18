@@ -5,6 +5,10 @@ use Closure;
 use Daftswag\Helpers\GlobalConfig;
 use Daftswag\Services\GitHubGateway;
 use Daftswag\Services\PivotalGateway;
+use Daftswag\Services\SlackGateway;
+use Frlnc\Slack\Core\Commander;
+use Frlnc\Slack\Http\CurlInteractor;
+use Frlnc\Slack\Http\SlackResponseFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -21,6 +25,7 @@ class Register extends Command
         $this->globalQuestions = [
             'github_username' => "Your github username",
             'github_token' => "Your github API token (https://github.com/settings/tokens)",
+            'slack_token' => "Your slack API token (https://api.slack.com/docs/oauth-test-tokens)",
         ];
     }
 
@@ -38,6 +43,7 @@ class Register extends Command
 
         $this->registerForGitHub($ask, $output);
         $this->registerForPivotal($ask, $output);
+        $this->registerForSlack($ask, $output);
     }
 
     private function registerForGitHub(Closure $ask, OutputInterface $output)
@@ -63,6 +69,14 @@ class Register extends Command
                 'email' => $email,
                 'initials' => $initials,
             ]));
+        }
+    }
+
+    private function registerForSlack(Closure $ask, OutputInterface $output)
+    {
+        if ($email = $ask('Email to invite to Slack', 'samueljakdavis@gmail.com')) {
+            $gateway = new SlackGateway($this->globalConfig->get('slack_token'));
+            $output->writeln($gateway->addUserToTeam('daftlabs', $email));
         }
     }
 }

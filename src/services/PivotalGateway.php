@@ -3,7 +3,6 @@
 namespace Daftswag\Services;
 
 use GuzzleHttp\Client;
-use InvalidArgumentException;
 
 class PivotalGateway
 {
@@ -14,12 +13,6 @@ class PivotalGateway
 
     public function __construct($project, $token)
     {
-        if (!$project) {
-            throw new InvalidArgumentException("Pivotal project id is required.");
-        }
-        if (!$token) {
-            throw new InvalidArgumentException("Pivotal API token is required.");
-        }
         $this->client = new Client(['timeout' => 2.0, 'base_uri' => static::BASE_URI, ['headers' => [
             'X-TrackerToken' => $token,
             'Content-Type' => 'application/json'

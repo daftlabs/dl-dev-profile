@@ -3,7 +3,6 @@
 namespace Daftswag\Services;
 
 use GuzzleHttp\Client;
-use InvalidArgumentException;
 
 class GitHubGateway
 {
@@ -15,9 +14,6 @@ class GitHubGateway
 
     public function __construct($username, $token)
     {
-        if (!$token) {
-            throw new InvalidArgumentException("Pivotal API token is required.");
-        }
         $this->username = $username;
         $this->token = $token;
         $this->client = new Client(['timeout' => 2.0, 'base_uri' => static::BASE_URI, 'auth' => [$this->username, $this->token]]);
