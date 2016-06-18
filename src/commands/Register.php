@@ -1,8 +1,10 @@
 <?php
 namespace Daftswag\Commands;
 
+use Closure;
 use Daftswag\Helpers\GlobalConfig;
 use Daftswag\Services\GitHubGateway;
+use Daftswag\Services\PivotalGateway;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -10,7 +12,6 @@ class Register extends Command
 {
     private $globalConfig;
     private $globalQuestions;
-    private $gitHubGateway;
 
     public function __construct($name = null)
     {
@@ -35,13 +36,33 @@ class Register extends Command
             $this->globalConfig->set($key, $ask($question, $this->globalConfig->get($key)));
         }
 
-        $this->gitHubGateway = new GitHubGateway(
+        $this->registerForGitHub($ask, $output);
+        $this->registerForPivotal($ask, $output);
+    }
+
+    private function registerForGitHub(Closure $ask, OutputInterface $output)
+    {
+        $gateway = new GitHubGateway(
             $this->globalConfig->get('github_username'),
             $this->globalConfig->get('github_token')
         );
-        if ($gitUsername = $ask('Github Username to invite')) {
-            $output->writeln($this->gitHubGateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $gitUsername));
+        if ($username = $ask('Username to invite to GitHub')) {
+            $output->writeln($gateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $username));
         }
+    }
 
+    private function registerForPivotal(Closure $ask, OutputInterface $output)
+    {
+        $gateway = new PivotalGateway(
+            $this->config->get('pivotal_id'),
+            $this->globalConfig->get('pivotal_token')
+        );
+        if ($email = $ask('Email to invite to Pivotal Tracker', 'samueljakdavis@gmail.com')) {
+            $initials = $ask("Pivotal Tracker invitee's initials", 'sjd');
+            $output->writeln($gateway->inviteUserToProject(GitHubGateway::ENGINEERS_GROUP_ID, [
+                'email' => $email,
+                'initials' => $initials,
+            ]));
+        }
     }
 }
