@@ -7,9 +7,6 @@ use Daftswag\Services\GitHubGateway;
 use Daftswag\Services\GoogleGateway;
 use Daftswag\Services\PivotalGateway;
 use Daftswag\Services\SlackGateway;
-use Frlnc\Slack\Core\Commander;
-use Frlnc\Slack\Http\CurlInteractor;
-use Frlnc\Slack\Http\SlackResponseFactory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -28,8 +25,7 @@ class Register extends Command
             'github_token' => "Your github API token (https://github.com/settings/tokens)",
             'pivotal_token' => "Your pivotal API token (https://www.pivotaltracker.com/profile)",
             'slack_token' => "Your slack API token (https://api.slack.com/docs/oauth-test-tokens)",
-            'google_id' => "Your Google API client id (https://console.developers.google.com/apis/credentials?project=daftlabs)",
-            'google_secret' => "Your Google API client secret (https://console.developers.google.com/apis/credentials?project=daftlabs)",
+            'google_client_secret_file' => "Credentials JSON file (https://console.developers.google.com/apis/credentials?project=daftlabs)"
         ];
     }
 
@@ -87,10 +83,18 @@ class Register extends Command
 
     private function registerForGmail(Closure $ask, OutputInterface $output)
     {
-        if ($email = $ask('Email to invite to Gmail', 'samueljakdavis@gmail.com')) {
+        $gateway = new GoogleGateway(trim(shell_exec("echo {$this->globalConfig->get('google_client_secret_file')}")));
+        $authToken = $this->globalConfig->get('google_token');
+        if (!$authToken) {
+            $authCode = $ask("Google auth code ({$gateway->createAuthUrl()})");
+            $authToken = $gateway->generateToken($authCode);
+            $this->globalConfig->set('google_token', $authToken);
+        }
+        $gateway->setToken($authToken['access_token']);
+
+        if ($email = $ask('Email to invite to Gmail', 'samueljakdavis@aim.com')) {
             $firstName = $ask("Invitee's first name", 'SamTest');
             $lastName = $ask("Invitee's last name", 'DavisTest');
-            $gateway = new GoogleGateway();
             $output->writeln($gateway->addUser($firstName, $lastName, 'insecure', $email));
         }
     }
