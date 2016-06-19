@@ -4,6 +4,7 @@ namespace Daftswag\Commands;
 use Closure;
 use Daftswag\Helpers\GlobalConfig;
 use Daftswag\Services\GitHubGateway;
+use Daftswag\Services\GoogleGateway;
 use Daftswag\Services\PivotalGateway;
 use Daftswag\Services\SlackGateway;
 use Frlnc\Slack\Core\Commander;
@@ -25,7 +26,10 @@ class Register extends Command
         $this->globalQuestions = [
             'github_username' => "Your github username",
             'github_token' => "Your github API token (https://github.com/settings/tokens)",
+            'pivotal_token' => "Your pivotal API token (https://www.pivotaltracker.com/profile)",
             'slack_token' => "Your slack API token (https://api.slack.com/docs/oauth-test-tokens)",
+            'google_id' => "Your Google API client id (https://console.developers.google.com/apis/credentials?project=daftlabs)",
+            'google_secret' => "Your Google API client secret (https://console.developers.google.com/apis/credentials?project=daftlabs)",
         ];
     }
 
@@ -44,6 +48,7 @@ class Register extends Command
         $this->registerForGitHub($ask, $output);
         $this->registerForPivotal($ask, $output);
         $this->registerForSlack($ask, $output);
+        $this->registerForGmail($ask, $output);
     }
 
     private function registerForGitHub(Closure $ask, OutputInterface $output)
@@ -77,6 +82,16 @@ class Register extends Command
         if ($email = $ask('Email to invite to Slack', 'samueljakdavis@gmail.com')) {
             $gateway = new SlackGateway($this->globalConfig->get('slack_token'));
             $output->writeln($gateway->addUserToTeam('daftlabs', $email));
+        }
+    }
+
+    private function registerForGmail(Closure $ask, OutputInterface $output)
+    {
+        if ($email = $ask('Email to invite to Gmail', 'samueljakdavis@gmail.com')) {
+            $firstName = $ask("Invitee's first name", 'SamTest');
+            $lastName = $ask("Invitee's last name", 'DavisTest');
+            $gateway = new GoogleGateway();
+            $output->writeln($gateway->addUser($firstName, $lastName, 'insecure', $email));
         }
     }
 }
