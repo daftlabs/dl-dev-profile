@@ -9,10 +9,10 @@ class Config
     private $namespace;
     private $file;
 
-    public function __construct($namespace = 'global')
+    public function __construct($namespace)
     {
         $this->namespace = $namespace;
-        $this->file = __DIR__ . "/../../config/{$this->namespace}.config";
+        $this->file = __DIR__ . "/../../config/{$this->namespace}.json";
         if (!is_file($this->file)) {
             $this->save([]);
         }

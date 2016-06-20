@@ -1,7 +1,7 @@
 <?php
 namespace Daftswag\Commands;
 
-use Daftswag\Helpers\Config;
+use Daftswag\Helpers\GlobalConfig;
 use Daftswag\Services\PivotalGateway;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,7 +17,7 @@ class PivotalDetails extends Command
     public function __construct($name = null)
     {
         parent::__construct($name);
-        $this->globalConfig = new Config();
+        $this->globalConfig = new GlobalConfig();
     }
 
     protected function configure()

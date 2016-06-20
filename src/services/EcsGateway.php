@@ -57,8 +57,17 @@ class EcsGateway extends AwsGateway
 
     public function registerTask($family, array $containerDefinitions)
     {
+        $currentTaskDefinitionArn = array_shift($this->client
+            ->listTaskDefinitions(['familyPrefix' => $family, 'sort' => 'DESC', 'maxResults' => 1])
+            ->get('taskDefinitionArns'));
+        $currentTaskDefinition = $this->client
+            ->describeTaskDefinition(['taskDefinition' => $currentTaskDefinitionArn])
+            ->get('taskDefinition');
+        if (!array_diff($currentTaskDefinition['containerDefinitions'], $containerDefinitions)) {
+            return $currentTaskDefinition;
+        }
         return $this->client->registerTaskDefinition([
-            'family' => $family,
+            'familyPrefix' => $family,
             'containerDefinitions' => $containerDefinitions,
         ])->get('taskDefinition');
     }
@@ -69,6 +78,7 @@ class EcsGateway extends AwsGateway
             'cluster' => $service['clusterArn'],
             'service' => $service['serviceName'],
             'taskDefinition' => $task['taskDefinitionArn'],
+            'desiredCount' => $service['desiredCount']
         ])->get('service');
     }
 }
