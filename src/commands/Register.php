@@ -42,8 +42,8 @@ class Register extends Command
         }
 
         $this->registerForGitHub($ask, $output);
-        $this->registerForPivotal($ask, $output);
         $this->registerForSlack($ask, $output);
+        $this->registerForPivotal($ask, $output);
         $this->registerForGmail($ask, $output);
     }
 
@@ -55,6 +55,14 @@ class Register extends Command
         );
         if ($username = $ask('Username to invite to GitHub')) {
             $output->writeln($gateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $username));
+        }
+    }
+
+    private function registerForSlack(Closure $ask, OutputInterface $output)
+    {
+        if ($email = $ask('Email to invite to Slack', 'samueljakdavis@gmail.com')) {
+            $gateway = new SlackGateway($this->globalConfig->get('slack_token'));
+            $output->writeln($gateway->addUserToTeam('daftlabs', $email));
         }
     }
 
@@ -70,14 +78,6 @@ class Register extends Command
                 'email' => $email,
                 'initials' => $initials,
             ]));
-        }
-    }
-
-    private function registerForSlack(Closure $ask, OutputInterface $output)
-    {
-        if ($email = $ask('Email to invite to Slack', 'samueljakdavis@gmail.com')) {
-            $gateway = new SlackGateway($this->globalConfig->get('slack_token'));
-            $output->writeln($gateway->addUserToTeam('daftlabs', $email));
         }
     }
 
