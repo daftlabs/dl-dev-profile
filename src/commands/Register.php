@@ -60,7 +60,7 @@ class Register extends Command
 
     private function registerForSlack(Closure $ask, OutputInterface $output)
     {
-        if ($email = $ask('Email to invite to Slack', 'samueljakdavis@gmail.com')) {
+        if ($email = $ask('Email to invite to Slack')) {
             $gateway = new SlackGateway($this->globalConfig->get('slack_token'));
             $output->writeln($gateway->addUserToTeam('daftlabs', $email));
         }
@@ -72,8 +72,8 @@ class Register extends Command
             $this->config->get('pivotal_id'),
             $this->globalConfig->get('pivotal_token')
         );
-        if ($email = $ask('Email to invite to Pivotal Tracker', 'samueljakdavis@gmail.com')) {
-            $initials = $ask("Pivotal Tracker invitee's initials", 'sjd');
+        if ($email = $ask('Email to invite to Pivotal Tracker')) {
+            $initials = $ask("Pivotal Tracker invitee's initials");
             $output->writeln($gateway->inviteUserToProject(GitHubGateway::ENGINEERS_GROUP_ID, [
                 'email' => $email,
                 'initials' => $initials,
@@ -92,9 +92,9 @@ class Register extends Command
         }
         $gateway->setToken($authToken['access_token']);
 
-        if ($email = $ask('Email to invite to Gmail', 'samueljakdavis@aim.com')) {
-            $firstName = $ask("Invitee's first name", 'SamTest');
-            $lastName = $ask("Invitee's last name", 'DavisTest');
+        if ($email = $ask('Email to invite to Gmail')) {
+            $firstName = $ask("Invitee's first name");
+            $lastName = $ask("Invitee's last name");
             $output->writeln($gateway->addUser($firstName, $lastName, 'insecure', $email));
         }
     }
