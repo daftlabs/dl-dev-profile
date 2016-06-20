@@ -1,8 +1,7 @@
 <?php
 namespace Daftswag\Commands;
 
-use Daftswag\Helpers\Config;
-use Exception;
+use Daftswag\Helpers\GlobalConfig;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -15,7 +14,7 @@ class Setup extends Command
     public function __construct($name = null)
     {
         parent::__construct($name);
-        $this->globalConfig = new Config();
+        $this->globalConfig = new GlobalConfig();
         $this->globalQuestions = [
             'pivotal_token' => "Your pivotal API token (https://www.pivotaltracker.com/profile)",
         ];
@@ -28,9 +27,7 @@ class Setup extends Command
 
     protected function configure()
     {
-        $this
-            ->setName('setup')
-            ->setDescription('Initialize a repository');
+        $this->setDescription('Initialize a repository');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

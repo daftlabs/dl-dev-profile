@@ -13,6 +13,7 @@ class Deploy extends Command
     const ARG_PROJECT = 'project';
     const ARG_ENV = 'env';
     const ARG_VERSION = 'version';
+    const OPT_TASK_COUNT = 'task_count';
 
     private $ecsGateway;
 
@@ -39,6 +40,13 @@ class Deploy extends Command
                 static::ARG_VERSION,
                 InputArgument::REQUIRED,
                 'Project version (reference git tag)'
+            )
+            ->addOption(
+                static::OPT_TASK_COUNT,
+                't',
+                InputArgument::OPTIONAL,
+                'The number of tasks to run',
+                1
             );
     }
 
@@ -56,6 +64,7 @@ class Deploy extends Command
         $taskDefinition = $this->ecsGateway->findServiceTaskDefinition($service);
         $newTaskDefinition = $this->buildNewTaskDefinition($taskDefinition, $version);
         $newTask = $this->ecsGateway->registerTask($newTaskDefinition['family'], $newTaskDefinition['containerDefinitions']);
+        $service['desiredCount'] = (int)$input->getOption(static::OPT_TASK_COUNT);
         $updatedService = $this->ecsGateway->updateService($service, $newTask);
         if ($updatedService) {
             $output->writeln("Deploying {$updatedService['taskDefinition']}.");
