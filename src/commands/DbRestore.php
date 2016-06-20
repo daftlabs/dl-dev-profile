@@ -3,6 +3,7 @@ namespace Daftswag\Commands;
 
 use Daftswag\Commands\Traits\ECSServiceArgs;
 use Daftswag\Services\EcsGateway;
+use Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,6 +30,10 @@ class DbRestore extends DbCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $backupFile = $input->getArgument(static::ARG_FILE);
+        if (!is_file($backupFile)) {
+            throw new Exception("{$backupFile} is not a file.");
+        }
         $this->getApplication()->find('db-backup')->execute($input, $output);
         $this->ecsGateway = new EcsGateway($this->project);
 
@@ -43,7 +48,7 @@ class DbRestore extends DbCommand
 
         ]);
         $dropCmd = "{$connectCmd} -e \"DROP DATABASE {$db['name']}; CREATE DATABASE {$db['name']};\"";
-        $restoreCmd = "{$connectCmd} {$db['name']} < {$input->getArgument(static::ARG_FILE)}";
+        $restoreCmd = "{$connectCmd} {$db['name']} < {$backupFile}";
         $this->exec($dropCmd);
         $this->exec($restoreCmd);
     }
