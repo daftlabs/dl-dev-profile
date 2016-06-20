@@ -1,6 +1,7 @@
 <?php
 namespace Daftswag\Commands;
 
+use Daftswag\Commands\Traits\ECSServiceArgs;
 use Daftswag\Services\EcsGateway;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -8,13 +9,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DbRestore extends DbCommand
 {
+    use ECSServiceArgs;
+
     const ARG_FILE = 'file';
 
     private $ecsGateway;
 
     protected function configure()
     {
-        parent::configure()
+        $this
+            ->addServiceArgs()
             ->setDescription('Upload a mysqldump of a project.')
             ->addArgument(
                 static::ARG_FILE,

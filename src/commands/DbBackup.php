@@ -1,12 +1,15 @@
 <?php
 namespace Daftswag\Commands;
 
+use Daftswag\Commands\Traits\ECSServiceArgs;
 use Daftswag\Services\EcsGateway;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DbBackup extends DbCommand
 {
+    use ECSServiceArgs;
+
     const ARG_PROJECT = 'project';
     const ARG_ENV = 'env';
 
@@ -14,7 +17,9 @@ class DbBackup extends DbCommand
 
     protected function configure()
     {
-        parent::configure()->setDescription('Download a mysqldump of a project.');
+        $this
+            ->addServiceArgs()
+            ->setDescription('Download a mysqldump of a project.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

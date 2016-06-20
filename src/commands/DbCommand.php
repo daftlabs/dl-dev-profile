@@ -10,21 +10,6 @@ abstract class DbCommand extends Command
     const ARG_PROJECT = 'project';
     const ARG_ENV = 'env';
 
-    protected function configure()
-    {
-        return $this
-            ->addArgument(
-                static::ARG_PROJECT,
-                InputArgument::REQUIRED,
-                'Project name (reference ECS service name)'
-            )
-            ->addArgument(
-                static::ARG_ENV,
-                InputArgument::REQUIRED,
-                'Project environment (reference ECS service name)'
-            );
-    }
-
     protected function getServiceName(InputInterface $input)
     {
         return "{$input->getArgument(static::ARG_PROJECT)}-{$input->getArgument(static::ARG_ENV)}";
@@ -42,11 +27,5 @@ abstract class DbCommand extends Command
             'host' => Arr::pluck($env, ['DB_HOST', 'MYSQL_HOST']),
             'name' => Arr::pluck($env, ['DB_NAME', 'DB_DATABASE', 'MYSQL_NAME', 'MYSQL_DATABASE']),
         ];
-    }
-
-    protected function exec($cmd)
-    {
-        echo "{$cmd}\n";
-        return shell_exec($cmd);
     }
 }
