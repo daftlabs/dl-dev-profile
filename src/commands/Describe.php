@@ -1,6 +1,7 @@
 <?php
 namespace Daftswag\Commands;
 
+use Daftswag\Services\Ec2Gateway;
 use Daftswag\Services\EcsGateway;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,7 +12,10 @@ class Describe extends Command
     const ARG_PROJECT = 'project';
     const ARG_ENV = 'env';
 
+    /** @var EcsGateway */
     private $ecsGateway;
+    /** @var Ec2Gateway */
+    private $ec2Gateway;
 
     protected function configure()
     {
@@ -32,6 +36,7 @@ class Describe extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->ecsGateway = new EcsGateway($this->project);
+        $this->ec2Gateway = new Ec2Gateway($this->project);
 
         $project = $input->getArgument(static::ARG_PROJECT);
         $env = $input->getArgument(static::ARG_ENV);
@@ -45,6 +50,7 @@ class Describe extends Command
 
     private function formatService(array $service)
     {
+        $instanceIds = $this->ecsGateway->getInstanceIdsByService($service);
         $output = array_merge(
             $this->generateHeader("SERVICE: {$service['serviceName']}"),
             [
@@ -52,6 +58,8 @@ class Describe extends Command
                 "Pending: {$service['pendingCount']}",
                 "Running: {$service['runningCount']}",
             ],
+            $this->generateHeader('HOSTS'),
+            $this->ec2Gateway->getHosts($instanceIds),
             $this->generateHeader('DEPLOYMENTS: ' . count($service['deployments']))
         );
         foreach ($service['deployments'] as $deployment) {
