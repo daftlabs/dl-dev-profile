@@ -41,47 +41,57 @@ class Register extends Command
             $this->globalConfig->set($key, $ask($question, $this->globalConfig->get($key)));
         }
 
-        $this->registerForGitHub($ask, $output);
-        $this->registerForSlack($ask, $output);
-        $this->registerForPivotal($ask, $output);
-        $this->registerForGmail($ask, $output);
+        $firstName = $ask("Register's first name", 'samtest');
+        $lastName = $ask("Register's last name", 'davistest');
+        $github = $ask("Register's github", 'samdavis');
+        $email = "{$firstName}@gmail.com";
+
+        $output->writeln('Registering for Gmail...');
+        $this->registerForGmail($ask, $output, [
+            'givenName' => $firstName,
+            'familyName' => $lastName,
+            'primaryEmail' => $email,
+            'password' => 'insecure'
+        ]);
+        $output->writeln('Registering for Slack...');
+        $this->registerForSlack($output, $email);
+        $output->writeln('Registering for Pivotal...');
+        $this->registerForPivotal($output, [
+            'email' => $email,
+            'initials' => $firstName,
+        ]);
+        $output->writeln('Registering for Github...');
+        $this->registerForGitHub($output, $github);
     }
 
-    private function registerForGitHub(Closure $ask, OutputInterface $output)
+    private function registerForGitHub(OutputInterface $output, $username)
     {
         $gateway = new GitHubGateway(
             $this->globalConfig->get('github_username'),
             $this->globalConfig->get('github_token')
         );
-        if ($username = $ask('Username to invite to GitHub')) {
-            $output->writeln($gateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $username));
-        }
+        $output->writeln($gateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $username));
     }
 
-    private function registerForSlack(Closure $ask, OutputInterface $output)
+    private function registerForSlack(OutputInterface $output, $email)
     {
-        if ($email = $ask('Email to invite to Slack')) {
-            $gateway = new SlackGateway($this->globalConfig->get('slack_token'));
-            $output->writeln($gateway->addUserToTeam('daftlabs', $email));
-        }
+        $gateway = new SlackGateway($this->globalConfig->get('slack_token'));
+        $output->writeln($gateway->addUserToTeam('daftlabs', $email));
     }
 
-    private function registerForPivotal(Closure $ask, OutputInterface $output)
+    private function registerForPivotal(OutputInterface $output, $user)
     {
         $gateway = new PivotalGateway(
             $this->config->get('pivotal_id'),
             $this->globalConfig->get('pivotal_token')
         );
-        if ($email = $ask('Email to invite to Pivotal Tracker')) {
-            $initials = $ask("Pivotal Tracker invitee's initials");
-            $output->writeln($gateway->inviteUserToProject(GitHubGateway::ENGINEERS_GROUP_ID, [
-                'email' => $email,
-                'initials' => $initials,
-            ]));
-        }
+        $output->writeln($gateway->inviteUserToProject(GitHubGateway::ENGINEERS_GROUP_ID, [
+            'email' => $user['email'],
+            'initials' => $user['initials'],
+        ]));
     }
 
-    private function registerForGmail(Closure $ask, OutputInterface $output)
+    private function registerForGmail(Closure $ask, OutputInterface $output, array $user)
     {
         $gateway = new GoogleGateway(trim(shell_exec("echo {$this->globalConfig->get('google_client_secret_file')}")));
         $authToken = $this->globalConfig->get('google_token');
@@ -91,11 +101,6 @@ class Register extends Command
             $this->globalConfig->set('google_token', $authToken);
         }
         $gateway->setToken($authToken['access_token']);
-
-        if ($email = $ask('Email to invite to Gmail')) {
-            $firstName = $ask("Invitee's first name");
-            $lastName = $ask("Invitee's last name");
-            $output->writeln($gateway->addUser($firstName, $lastName, 'insecure', $email));
-        }
+        $output->writeln($gateway->addUser($user));
     }
 }
