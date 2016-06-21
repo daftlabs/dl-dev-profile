@@ -2,7 +2,6 @@
 namespace Daftswag\Commands;
 
 use Daftswag\Helpers\Config;
-use Exception;
 use Symfony\Component\Console\Command\Command as SymphonyCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,5 +31,11 @@ abstract class Command extends SymphonyCommand
             $text .= $default ? " [{$default}]:" : ':';
             return $questionHelper->ask($input, $output, new Question($text, $default));
         };
+    }
+
+    protected function exec($cmd)
+    {
+        echo "{$cmd}\n";
+        return shell_exec($cmd);
     }
 }
