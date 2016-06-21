@@ -14,9 +14,10 @@ class EcsGateway extends AwsGateway
         $this->client = new EcsClient($this->getAwsConfig());
     }
 
-    public function findService($serviceName)
+    public function findService($serviceName, $cluster = null)
     {
-        foreach ($this->listClusters() as $clusterArn) {
+        $clusters = $cluster ? [$cluster] : $this->listClusters();
+        foreach ($clusters as $clusterArn) {
             $args = ['cluster' => $clusterArn, 'services' => [$serviceName]];
             $service = array_shift($this->client->describeServices($args)->get('services'));
             if ($service && $service['status'] == 'ACTIVE') {
@@ -26,6 +27,11 @@ class EcsGateway extends AwsGateway
         }
 
         return null;
+    }
+
+    private function listClusters()
+    {
+        return $this->client->listClusters()->get('clusterArns');
     }
 
     public function getInstanceIdsByService($service)
@@ -49,11 +55,6 @@ class EcsGateway extends AwsGateway
         return $this->client
             ->describeTaskDefinition(['cluster' => $service['clusterArn'], 'taskDefinition' => $service['taskDefinition']])
             ->get('taskDefinition');
-    }
-
-    private function listClusters()
-    {
-        return $this->client->listClusters()->get('clusterArns');
     }
 
     public function registerTask($family, array $containerDefinitions)

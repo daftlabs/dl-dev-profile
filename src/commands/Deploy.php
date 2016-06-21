@@ -14,6 +14,8 @@ class Deploy extends Command
     const ARG_ENV = 'env';
     const ARG_VERSION = 'version';
     const OPT_TASK_COUNT = 'task_count';
+    const OPT_CLUSTER = 'cluster';
+    const OPT_NO_DB = 'no-db';
 
     private $ecsGateway;
 
@@ -47,12 +49,26 @@ class Deploy extends Command
                 InputArgument::OPTIONAL,
                 'The number of tasks to run',
                 1
+            )
+            ->addOption(
+                static::OPT_CLUSTER,
+                'c',
+                InputArgument::OPTIONAL,
+                'The cluster to deploy to'
+            )
+            ->addOption(
+                static::OPT_NO_DB,
+                'ndb',
+                InputArgument::OPTIONAL,
+                "Don't back up the database beforehand."
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getApplication()->find('db-backup')->execute($input, $output);
+        if (!$input->getOption(static::OPT_NO_DB)) {
+            $this->getApplication()->find('db-backup')->execute($input, $output);
+        }
         $this->ecsGateway = new EcsGateway($this->project);
 
         $project = $input->getArgument(static::ARG_PROJECT);
@@ -60,7 +76,7 @@ class Deploy extends Command
         $version = $input->getArgument(static::ARG_VERSION);
         $serviceName = "{$project}-{$env}";
 
-        $service = $this->ecsGateway->findService($serviceName);
+        $service = $this->ecsGateway->findService($serviceName, $input->getOption(static::OPT_CLUSTER));
         $taskDefinition = $this->ecsGateway->findServiceTaskDefinition($service);
         $newTaskDefinition = $this->buildNewTaskDefinition($taskDefinition, $version);
         $newTask = $this->ecsGateway->registerTask($newTaskDefinition['family'], $newTaskDefinition['containerDefinitions']);
