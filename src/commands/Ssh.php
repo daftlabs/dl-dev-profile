@@ -1,6 +1,7 @@
 <?php
 namespace Daftswag\Commands;
 
+use Daftswag\Commands\Traits\ECSServiceArgs;
 use Daftswag\Services\Ec2Gateway;
 use Daftswag\Services\EcsGateway;
 use Symfony\Component\Console\Input\InputArgument;
@@ -9,6 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Ssh extends Command
 {
+    use ECSServiceArgs;
+
     const ARG_PROJECT = 'project';
     const ARG_ENV = 'env';
     const ARG_CMD = 'cmd';
@@ -24,17 +27,8 @@ class Ssh extends Command
     protected function configure()
     {
         $this
+            ->addServiceArgs()
             ->setDescription('Run a bash command in ECS containers for a service.')
-            ->addArgument(
-                static::ARG_PROJECT,
-                InputArgument::REQUIRED,
-                'Project name (reference ECS service name)'
-            )
-            ->addArgument(
-                static::ARG_ENV,
-                InputArgument::REQUIRED,
-                'Project environment (reference ECS service name)'
-            )
             ->addArgument(
                 static::ARG_CMD,
                 InputArgument::REQUIRED,
