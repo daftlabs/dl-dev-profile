@@ -32,4 +32,10 @@ abstract class Command extends SymphonyCommand
             return $questionHelper->ask($input, $output, new Question($text, $default));
         };
     }
+
+    protected function exec($cmd)
+    {
+        echo "{$cmd}\n";
+        return shell_exec($cmd);
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Daftswag\Commands;
 
+use Daftswag\Commands\Traits\ECSServiceArgs;
 use Daftswag\Services\EcsGateway;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -8,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Deploy extends Command
 {
+    use ECSServiceArgs;
+
     const ARG_PROJECT = 'project';
     const ARG_ENV = 'env';
     const ARG_VERSION = 'version';
@@ -23,17 +26,8 @@ class Deploy extends Command
     protected function configure()
     {
         $this
+            ->addServiceArgs()
             ->setDescription('Deploy a project.')
-            ->addArgument(
-                static::ARG_PROJECT,
-                InputArgument::REQUIRED,
-                'Project name (reference ECS service name)'
-            )
-            ->addArgument(
-                static::ARG_ENV,
-                InputArgument::REQUIRED,
-                'Project environment (reference ECS service name)'
-            )
             ->addArgument(
                 static::ARG_VERSION,
                 InputArgument::REQUIRED,
