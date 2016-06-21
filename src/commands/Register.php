@@ -25,7 +25,7 @@ class Register extends Command
             'github_token' => "Your github API token (https://github.com/settings/tokens)",
             'pivotal_token' => "Your pivotal API token (https://www.pivotaltracker.com/profile)",
             'slack_token' => "Your slack API token (https://api.slack.com/docs/oauth-test-tokens)",
-            'google_client_secret_file' => "Credentials JSON file (https://console.developers.google.com/apis/credentials?project=daftlabs)"
+            'google_client_secret_file' => "OAuth 2.0 Credentials JSON file (https://console.developers.google.com/apis/credentials?project=daftlabs)"
         ];
     }
 
@@ -41,17 +41,19 @@ class Register extends Command
             $this->globalConfig->set($key, $ask($question, $this->globalConfig->get($key)));
         }
 
-        $firstName = $ask("Register's first name", 'samtest');
-        $lastName = $ask("Register's last name", 'davistest');
-        $github = $ask("Register's github", 'samdavis');
-        $email = "{$firstName}@gmail.com";
+        $firstName = $ask("Register's first name");
+        $lastName = $ask("Register's last name");
+        $github = $ask("Register's github");
+        $email = "{$firstName}@daftlabs.com";
 
         $output->writeln('Registering for Gmail...');
         $this->registerForGmail($ask, $output, [
-            'givenName' => $firstName,
-            'familyName' => $lastName,
+            'name' => [
+                'givenName' => $firstName,
+                'familyName' => $lastName,
+            ],
             'primaryEmail' => $email,
-            'password' => 'insecure'
+            'password' => 'insecure',
         ]);
         $output->writeln('Registering for Slack...');
         $this->registerForSlack($output, $email);
@@ -64,13 +66,17 @@ class Register extends Command
         $this->registerForGitHub($output, $github);
     }
 
-    private function registerForGitHub(OutputInterface $output, $username)
+    private function registerForGmail(Closure $ask, OutputInterface $output, array $user)
     {
-        $gateway = new GitHubGateway(
-            $this->globalConfig->get('github_username'),
-            $this->globalConfig->get('github_token')
-        );
-        $output->writeln($gateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $username));
+        $gateway = new GoogleGateway(trim(shell_exec("echo {$this->globalConfig->get('google_client_secret_file')}")));
+        $authToken = $this->globalConfig->get('google_token');
+        if (!$authToken) {
+            $authCode = $ask("Google auth code ({$gateway->createAuthUrl()})");
+            $authToken = $gateway->generateToken($authCode);
+            $this->globalConfig->set('google_token', $authToken);
+        }
+        $gateway->setToken($authToken['access_token']);
+        $output->writeln($gateway->addUser($user));
     }
 
     private function registerForSlack(OutputInterface $output, $email)
@@ -91,16 +97,12 @@ class Register extends Command
         ]));
     }
 
-    private function registerForGmail(Closure $ask, OutputInterface $output, array $user)
+    private function registerForGitHub(OutputInterface $output, $username)
     {
-        $gateway = new GoogleGateway(trim(shell_exec("echo {$this->globalConfig->get('google_client_secret_file')}")));
-        $authToken = $this->globalConfig->get('google_token');
-        if (!$authToken) {
-            $authCode = $ask("Google auth code ({$gateway->createAuthUrl()})");
-            $authToken = $gateway->generateToken($authCode);
-            $this->globalConfig->set('google_token', $authToken);
-        }
-        $gateway->setToken($authToken['access_token']);
-        $output->writeln($gateway->addUser($user));
+        $gateway = new GitHubGateway(
+            $this->globalConfig->get('github_username'),
+            $this->globalConfig->get('github_token')
+        );
+        $output->writeln($gateway->addUserToTeam(GitHubGateway::ENGINEERS_GROUP_ID, $username));
     }
 }
