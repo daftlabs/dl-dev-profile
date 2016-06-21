@@ -40,6 +40,7 @@ class Ssh extends Command
     {
         $this->ecsGateway = new EcsGateway($this->project);
         $this->ec2Gateway = new Ec2Gateway($this->project);
+        $projectPem = $this->exec("echo ~/.ssh/{$this->project}.pem", false);
 
         $project = $input->getArgument(static::ARG_PROJECT);
         $env = $input->getArgument(static::ARG_ENV);
@@ -47,12 +48,13 @@ class Ssh extends Command
         $service = $this->ecsGateway->findService($serviceName);
         $instanceIds = $this->ecsGateway->getInstanceIdsByService($service);
         $hosts = $this->ec2Gateway->getHosts($instanceIds);
+        $pem = is_file($projectPem) ? $projectPem : null;
 
         foreach ($hosts as $host) {
-            foreach (explode("\n", $this->ec2Gateway->runCmd($host, 'docker ps')) as $containerDescription) {
+            foreach (explode("\n", $this->ec2Gateway->runCmd($host, 'docker ps', $pem)) as $containerDescription) {
                 if (stristr($containerDescription, $serviceName)) {
                     $description = preg_split('/\s{2,}/', $containerDescription);
-                    $res = $this->ec2Gateway->runCmd($host, "docker exec -i {$description[0]} {$input->getArgument(static::ARG_CMD)}");
+                    $res = $this->ec2Gateway->runCmd($host, "docker exec -i {$description[0]} {$input->getArgument(static::ARG_CMD)}", $pem);
                     echo implode("\n", ['==============', $host, '==============', $res]) . "\n";
                     break;
                 }

@@ -28,8 +28,8 @@ class Ec2Gateway extends AwsGateway
         return array_filter($hosts);
     }
 
-    public function runCmd($host, $cmd)
+    public function runCmd($host, $cmd, $pem = '~/.ssh/ecs.pem')
     {
-        return shell_exec("ssh ec2-user@{$host} -i ~/.ssh/ecs.pem '{$cmd}'");
+        return shell_exec("ssh ec2-user@{$host} -i {$pem} '{$cmd}'");
     }
 }

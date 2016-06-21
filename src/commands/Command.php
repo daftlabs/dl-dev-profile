@@ -16,11 +16,19 @@ abstract class Command extends SymphonyCommand
     public function __construct($name = null)
     {
         parent::__construct($name);
-        $this->project = trim(shell_exec('basename `git rev-parse --show-toplevel 2>/dev/null` 2>/dev/null'));
+        $this->project = $this->exec('basename `git rev-parse --show-toplevel 2>/dev/null` 2>/dev/null', false);
         if (!$this->project) {
             die("Project not found. Where's the .git directory?\n");
         }
         $this->config = new Config($this->project);
+    }
+
+    protected function exec($cmd, $doLog = true)
+    {
+        if ($doLog) {
+            echo "{$cmd}\n";
+        }
+        return trim(shell_exec($cmd));
     }
 
     protected function getPrompt(InputInterface $input, OutputInterface $output)
@@ -31,11 +39,5 @@ abstract class Command extends SymphonyCommand
             $text .= $default ? " [{$default}]:" : ':';
             return $questionHelper->ask($input, $output, new Question($text, $default));
         };
-    }
-
-    protected function exec($cmd)
-    {
-        echo "{$cmd}\n";
-        return shell_exec($cmd);
     }
 }
