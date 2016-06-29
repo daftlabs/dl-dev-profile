@@ -3,7 +3,6 @@
 namespace Daftswag\Services;
 
 use GuzzleHttp\Client;
-use InvalidArgumentException;
 
 class PivotalGateway
 {
@@ -14,21 +13,24 @@ class PivotalGateway
 
     public function __construct($project, $token)
     {
-        if (!$project) {
-            throw new InvalidArgumentException("Pivotal project id is required.");
-        }
-        if (!$token) {
-            throw new InvalidArgumentException("Pivotal API token is required.");
-        }
-        $this->client = new Client(['timeout' => 2.0, 'base_uri' => static::BASE_URI, ['headers' => ['X-TrackerToken' => $token]]]);
+        $this->client = new Client(['timeout' => 2.0, 'base_uri' => static::BASE_URI, ['headers' => [
+            'X-TrackerToken' => $token,
+            'Content-Type' => 'application/json'
+        ]]]);
         $this->project = $project;
         $this->token = $token;
     }
 
     public function describeStories(array $storyIds)
     {
-        $url = "services/v5/projects/{$this->project}/stories?filter=id:" . implode(',', $storyIds);
+        $url = "/services/v5/projects/{$this->project}/stories?filter=id:" . implode(',', $storyIds);
         return json_decode($this->request($url)->getBody()->getContents(), true);
+    }
+
+    public function inviteUserToProject($projectId, $user)
+    {
+        $url = "/projects/{$projectId}/memberships";
+        return json_decode($this->request($url, 'POST', ['json' => $user])->getBody()->getContents(), true);
     }
 
     private function request($uri, $method = 'GET', array $options = [])
