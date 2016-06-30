@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 THERE=$PWD
+HERE=~/.daftlabs
 
 #download app
-mkdir -p ~/.daftlabs
+mkdir -p ${HERE}
 #curl -L https://github.com/daftlabs/dl-dev-profile/archive/master.tar.gz | tar -zx -C ~/.daftlabs --strip-components=1
-cd ~/.daftlabs
+cd ${HERE}
 grep -q -F 'source ~/.daftlabs/bash_profile.sh' ~/.bash_profile || echo 'source ~/.daftlabs/bash_profile.sh' >> ~/.bash_profile
 
 #install latest node and npm
@@ -16,5 +17,10 @@ brew install node
 #install dependencies
 npm install
 
+#misc
+if [ ! -e ${HERE}/.storage.json ]; then
+   echo "{}" > ${HERE}/.storage.json
+fi
+
 source ~/.bash_profile
-cd $THERE
+cd ${THERE}
