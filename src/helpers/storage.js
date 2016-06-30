@@ -5,9 +5,27 @@ const fs = require('fs');
 
 module.exports = (storageFile = `${__dirname}/../../.storage.json`) => {
   return {
-    get: (key, def = null) => loadAll().then(data => data.hasOwnProperty(key) ? data[key] : def).catch(err => def),
-    set: (key, value) => loadAll().then(data => Object.assign({}, data, {[key]: value})).then(storeAll)
+    get: getKey,
+    set: setKey,
+    getCurrentProfile
   };
+
+  function getKey(key, def = null) {
+    return loadAll()
+      .then(data => data.hasOwnProperty(key) ? data[key] : def)
+      .catch(err => def);
+  }
+
+  function setKey(key, value) {
+    return loadAll()
+      .then(data => Object.assign({}, data, {[key]: value}))
+      .then(storeAll);
+  }
+
+  function getCurrentProfile() {
+    return getKey('currentProfile')
+      .then(name => getKey('profiles', {}).then(profiles => profiles[name]));
+  }
 
   function loadAll() {
     return utils.promisify(fs.readFile.bind(fs, storageFile))

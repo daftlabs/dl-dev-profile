@@ -30,9 +30,14 @@ function save(vorpal) {
             default: defaultProfile.awsSecretAccessKey,
             validate: Boolean
           }, {
-            name: 'githubToken',
-            message: 'GitHub Personal Access Token: ',
-            default: defaultProfile.githubToken,
+            name: 'githubUser',
+            message: 'GitHub Username: ',
+            default: defaultProfile.githubUsername,
+            validate: Boolean
+          }, {
+            name: 'githubPass',
+            message: 'GitHub Password: ',
+            default: defaultProfile.githubPassword,
             validate: Boolean
           }, {
             name: 'pivotalToken',
