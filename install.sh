@@ -13,6 +13,7 @@ grep -q -F 'source ~/.daftlabs/bash_profile.sh' ~/.bash_profile || echo 'source 
 rm -rf /usr/local/lib/node_modules
 brew uninstall node
 brew install node
+brew link --overwrite node
 
 #install dependencies
 npm install
