@@ -1,11 +1,12 @@
 'use strict';
 
-const _ = require('lodash/fp');
-const github = require('octonode');
-const utils = require('./../helpers/utils');
-const storage = require('./../helpers/storage')();
 
-module.exports = () => {
+module.exports = (config = {}) => {
+  const _ = config._ || require('lodash/fp');
+  const github = config.github || require('octonode');
+  const utils = config.utils || require('./../helpers/utils');
+  const dataStore = require('./dataStore')();
+
   return {
     listRepositories: () => getClient().then(client => listRepositories(client.me())),
     listTags: name => getClient().then(client => listTags(client.repo(name)))
@@ -24,7 +25,7 @@ module.exports = () => {
   }
 
   function getClient() {
-    return storage.getCurrentProfile()
+    return dataStore.getCurrentProfile()
       .then(currentProfile => {
         return github.client({
           username: currentProfile.githubUsername,

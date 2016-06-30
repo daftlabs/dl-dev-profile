@@ -1,14 +1,15 @@
 'use strict';
 
-const _ = require('lodash/fp');
-const storage = require('./../helpers/storage')();
-const buildGithubAPI = require('./../services/github');
 
-const autocompleteRepositories = {
-  data: () => buildGithubAPI().listRepositories().then(_.map.bind(_, repo => repo.full_name))
-};
+module.exports = (config = {}) => {
+  const _ = config._ || require('lodash/fp');
+  const buildGithubAPI = config.buildGithubAPI || require('./../services/github');
+  const vorpal = config.vorpal;
 
-module.exports = vorpal => {
+  const autocompleteRepositories = {
+    data: () => buildGithubAPI().listRepositories().then(_.map.bind(_, repo => repo.full_name))
+  };
+
   vorpal
     .command('list-releases [project]', 'Show a sorted list of release tags.', {})
     .autocomplete(autocompleteRepositories)

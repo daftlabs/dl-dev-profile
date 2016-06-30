@@ -1,9 +1,10 @@
 'use strict';
 
-const utils = require('./utils');
-const fs = require('fs');
+module.exports = (config = {}) => {
+  const fs = config.fs || require('fs');
+  const utils = config.utils || require('./../helpers/utils')();
+  const storageFile = config.storageFile || `${__dirname}/../../.storage.json`;
 
-module.exports = (storageFile = `${__dirname}/../../.storage.json`) => {
   return {
     get: getKey,
     set: setKey,
