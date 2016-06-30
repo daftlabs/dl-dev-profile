@@ -7,7 +7,9 @@ module.exports = (config = {}) => {
   const dataStore = require('./dataStore')();
 
   return {
-    findService: name => getClient().then(client => findService(client, name))
+    getServiceByName: name => getClient().then(getServiceByName.bind(null, name)),
+    getDefinitionByName: name => getClient().then(getDefinitionByName.bind(null, name)),
+    getDefinitionByService: name => getClient().then(getDefinitionByService.bind(null, name))
   };
 
   function getClient() {
@@ -21,7 +23,7 @@ module.exports = (config = {}) => {
       });
   }
 
-  function findService(ecs, name) {
+  function getServiceByName(name, ecs) {
     return listClusters(ecs)
       .then(clusters => {
         let serviceQueries = [];
@@ -48,6 +50,14 @@ module.exports = (config = {}) => {
       });
   }
 
+  function getDefinitionByService(service, ecs) {
+    return getDefinitionByName(arnToName(service.taskDefinition), ecs)
+      .then(task => _.head(_.filter({name: service.serviceName}, task.taskDefinition.containerDefinitions)));
+  }
+
+  function getDefinitionByName(taskDefinition, ecs) {
+    return utils.promisify(ecs.describeTaskDefinition.bind(ecs, {taskDefinition}));
+  }
 
   function listClusters(ecs) {
     return utils.promisify(ecs.listClusters.bind(ecs))

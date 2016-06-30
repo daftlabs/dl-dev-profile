@@ -8,7 +8,7 @@ module.exports = (config = {}) => {
   vorpal
     .command('describe [project] [environment]', 'Describe currently deployed project.', {})
     .action(function ({project, environment}, cb) {
-      ecsGateway.findService(`${project}-${environment}`)
+      ecsGateway.getServiceByName(`${project}-${environment}`)
         .then(service => console.log(JSON.stringify({service}, null, 2)))
         .then(cb);
     });
