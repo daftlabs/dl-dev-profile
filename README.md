@@ -1,13 +1,19 @@
-Get the latest Node and NPM
+run this
+
+```bash
+curl -L https://raw.githubusercontent.com/daftlabs/dl-dev-profile/master/install.sh | bash
 ```
+
+========================================================================
+
+Get the latest Node and NPM
+```bash
 rm -rf /usr/local/lib/node_modules
 brew uninstall node
-brew install node --without-npm
-echo prefix=~/.npm-packages >> ~/.npmrc
-curl -L https://www.npmjs.com/install.sh | sh
+brew install node
 ```
 
 Have you been sudoing when you shouldn't?
-```
+```bash
 sudo chown -R $(whoami) /usr/local
 ```
