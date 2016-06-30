@@ -16,20 +16,33 @@ function save(vorpal) {
     .command('profile save <name>', 'Configure an AWS profile.', {})
     .autocomplete(autocompleteProfileNames)
     .action(function ({name}, cb) {
-      this.prompt([{
-        name: 'awsAccessKeyId',
-        message: 'AWS Access Key Id:',
-        validate: Boolean
-      }, {
-        name: 'awsSecretAccessKey',
-        message: 'AWS Secret Access Key:',
-        validate: Boolean
-      }])
-        .then(answers => {
-          return getProfiles()
-            .then(profiles => storage.set('profiles', Object.assign({}, profiles, {[name]: answers})))
-        })
-        .then(cb);
+      getProfiles()
+        .then(profiles => {
+          const defaultProfile = profiles[name] || {};
+          this.prompt([{
+            name: 'awsAccessKeyId',
+            message: 'AWS Access Key Id: ',
+            default: defaultProfile.awsAccessKeyId,
+            validate: Boolean
+          }, {
+            name: 'awsSecretAccessKey',
+            message: 'AWS Secret Access Key: ',
+            default: defaultProfile.awsSecretAccessKey,
+            validate: Boolean
+          }, {
+            name: 'githubToken',
+            message: 'GitHub Personal Access Token: ',
+            default: defaultProfile.githubToken,
+            validate: Boolean
+          }, {
+            name: 'pivotalToken',
+            message: 'Pivotal API Token: ',
+            default: defaultProfile.pivotalToken,
+            validate: Boolean
+          }])
+            .then(answers => storage.set('profiles', Object.assign({}, profiles, {[name]: answers})))
+            .then(cb);
+        });
     });
 }
 
