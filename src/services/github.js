@@ -1,0 +1,35 @@
+'use strict';
+
+const _ = require('lodash/fp');
+const github = require('octonode');
+const utils = require('./../helpers/utils');
+const storage = require('./../helpers/storage')();
+
+module.exports = () => {
+  return {
+    listRepositories: () => getClient().then(client => listRepositories(client.me())),
+    listTags: name => getClient().then(client => listTags(client.repo(name)))
+  };
+
+  function listRepositories(ghme) {
+    return utils.promisify(ghme.repos.bind(ghme, {per_page: 100}));
+  }
+
+  function listTags(ghrepo) {
+    return utils.promisify(ghrepo.tags.bind(ghrepo))
+      .then(_.map.bind(_, _.omit(['zipball_url', 'tarball_url'])))
+      .then(_.map.bind(_, tag => Object.assign({name: tag.name}, tag.commit)))
+      .then(_.filter.bind(_, tag => tag.name.match(/v[0-9.]+/)))
+      .then(_.reverse);
+  }
+
+  function getClient() {
+    return storage.getCurrentProfile()
+      .then(currentProfile => {
+        return github.client({
+          username: currentProfile.githubUsername,
+          password: currentProfile.githubPassword
+        });
+      });
+  }
+};

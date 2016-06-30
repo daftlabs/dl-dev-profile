@@ -30,12 +30,12 @@ function save(vorpal) {
             default: defaultProfile.awsSecretAccessKey,
             validate: Boolean
           }, {
-            name: 'githubUser',
+            name: 'githubUsername',
             message: 'GitHub Username: ',
             default: defaultProfile.githubUsername,
             validate: Boolean
           }, {
-            name: 'githubPass',
+            name: 'githubPassword',
             message: 'GitHub Password: ',
             default: defaultProfile.githubPassword,
             validate: Boolean
