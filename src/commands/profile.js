@@ -6,7 +6,7 @@ module.exports = (config = {}) => {
   const vorpal = config.vorpal;
 
   const autocompleteProfileNames = {
-    data: () => getProfiles().then(_.keys)
+    data: () => dataStore.profiles.getAll().then(_.keys)
   };
 
   [save, use, remove, list].forEach(command => command(vorpal));
@@ -16,36 +16,35 @@ module.exports = (config = {}) => {
       .command('profile save <name>', 'Configure an AWS profile.', {})
       .autocomplete(autocompleteProfileNames)
       .action(function ({name}, cb) {
-        getProfiles()
-          .then(profiles => {
-            const defaultProfile = profiles[name] || {};
+        dataStore.profiles.get(name, {})
+          .then(existing => {
             this.prompt([{
               name: 'awsAccessKeyId',
               message: 'AWS Access Key Id: ',
-              default: defaultProfile.awsAccessKeyId,
+              default: existing.awsAccessKeyId,
               validate: Boolean
             }, {
               name: 'awsSecretAccessKey',
               message: 'AWS Secret Access Key: ',
-              default: defaultProfile.awsSecretAccessKey,
+              default: existing.awsSecretAccessKey,
               validate: Boolean
             }, {
               name: 'githubUsername',
               message: 'GitHub Username: ',
-              default: defaultProfile.githubUsername,
+              default: existing.githubUsername,
               validate: Boolean
             }, {
               name: 'githubPassword',
               message: 'GitHub Password: ',
-              default: defaultProfile.githubPassword,
+              default: existing.githubPassword,
               validate: Boolean
             }, {
               name: 'pivotalToken',
               message: 'Pivotal API Token: ',
-              default: defaultProfile.pivotalToken,
+              default: existing.pivotalToken,
               validate: Boolean
             }])
-              .then(answers => dataStore.set('profiles', Object.assign({}, profiles, {[name]: answers})))
+              .then(answers => dataStore.profiles.set(name, answers))
               .then(cb);
           });
       });
@@ -56,12 +55,12 @@ module.exports = (config = {}) => {
       .command('profile use <name>', 'Set current AWS profile for use in other commands.', {})
       .autocomplete(autocompleteProfileNames)
       .action(function ({name}, cb) {
-        getProfiles()
-          .then(profiles => {
-            if (!profiles.hasOwnProperty(name)) {
+        dataStore.profiles.get(name)
+          .then(profile => {
+            if (!profile) {
               return this.log(`Unknown profile "${name}".`);
             }
-            return dataStore.set('currentProfile', name)
+            return dataStore.profiles.setCurrent(name)
               .then(() => console.log(`Current profile set to "${name}".`));
           })
           .then(cb);
@@ -73,20 +72,20 @@ module.exports = (config = {}) => {
       .command('profile remove <name>', 'Delete an AWS profile.', {})
       .autocomplete(autocompleteProfileNames)
       .action(function ({name}, cb) {
-        dataStore.get('currentProfile')
+        dataStore.profiles.getCurrent()
           .then(currentProfile => {
             if (currentProfile !== name) {
               return;
             }
-            return dataStore.set('currentProfile', null)
+            return dataStore.profiles.setCurrent(null)
               .then(() => console.log(`Current profile cleared.`));
           })
-          .then(() => getProfiles())
+          .then(() => dataStore.profiles.getAll())
           .then(profiles => {
             if (!profiles.hasOwnProperty(name)) {
               return this.log(`Unknown profile "${name}".`);
             }
-            return dataStore.set('profiles', _.omit([name], profiles))
+            return dataStore.profiles.setAll(_.omit([name], profiles))
               .then(() => console.log(`Profile "${name}" deleted.`));
           })
           .then(cb);
@@ -99,8 +98,8 @@ module.exports = (config = {}) => {
       .autocomplete(autocompleteProfileNames)
       .action(function ({name}, cb) {
         Promise.all([
-          getProfiles(),
-          dataStore.get('currentProfile', {})
+          dataStore.profiles.getAll(),
+          dataStore.profiles.getCurrent()
         ])
           .then(([profiles, currentProfile]) => {
             let profileNames;
@@ -117,16 +116,12 @@ module.exports = (config = {}) => {
               }
             }
             return profileNames.forEach(name => {
-              this.log(name === currentProfile ? `* ${name}` : name);
+              this.log(name === currentProfile.name ? `* ${name}` : name);
               this.log(JSON.stringify(profiles[name], null, 2));
               this.log('');
             });
           })
           .then(cb);
       });
-  }
-
-  function getProfiles() {
-    return dataStore.get('profiles', {});
   }
 };

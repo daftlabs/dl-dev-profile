@@ -2,13 +2,19 @@
 
 module.exports = (config = {}) => {
   const fs = config.fs || require('fs');
+  const _ = config._ || require('lodash/fp');
   const utils = config.utils || require('./../helpers/utils')();
   const storageFile = config.storageFile || `${__dirname}/../../.storage.json`;
 
   return {
-    get: getKey,
-    set: setKey,
-    getCurrentProfile
+    profiles: {
+      getAll: getKey.bind(null, 'profiles', {}),
+      setAll: setKey.bind(null, 'profiles'),
+      get: (name, def = null) => getKey('profiles', {}).then(profiles => profiles.hasOwnProperty(name) ? profiles[name] : def),
+      set: (name, data) => getKey('profiles', {}).then(profiles => _.assign(profiles, {[name]: data})).then(setKey.bind(null, 'profiles')),
+      getCurrent: () => getKey('currentProfile').then(name => getKey('profiles', {}).then(profiles => _.assign(profiles[name], {name}))),
+      setCurrent: setKey.bind(null, 'currentProfile')
+    }
   };
 
   function getKey(key, def = null) {
@@ -19,7 +25,7 @@ module.exports = (config = {}) => {
 
   function setKey(key, value) {
     return loadAll()
-      .then(data => Object.assign({}, data, {[key]: value}))
+      .then(data => _.assign(data, {[key]: value}))
       .then(storeAll);
   }
 
