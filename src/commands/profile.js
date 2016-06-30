@@ -90,18 +90,32 @@ function remove(vorpal) {
 
 function list(vorpal) {
   vorpal
-    .command('profile list', 'List all saved AWS profiles.', {})
-    .action(function (args, cb) {
+    .command('profile list [name]', 'List all saved AWS profiles.', {})
+    .autocomplete(autocompleteProfileNames)
+    .action(function ({name}, cb) {
       Promise.all([
         getProfiles(),
         storage.get('currentProfile', {})
       ])
         .then(([profiles, currentProfile]) => {
-          const profileNames = _.keys(profiles);
-          if (profileNames.length < 1) {
-            return this.log('No saved profiles.');
+          let profileNames;
+
+          if (name) {
+            if (!profiles.hasOwnProperty(name)) {
+              return this.log(`Unknown profile "${name}".`);
+            }
+            profileNames = [name];
+          } else {
+            profileNames = _.keys(profiles);
+            if (profileNames.length < 1) {
+              return this.log('No saved profiles.');
+            }
           }
-          return profileNames.forEach(name => this.log(name === currentProfile ? `* ${name}` : name));
+          return profileNames.forEach(name => {
+            this.log(name === currentProfile ? `* ${name}` : name);
+            this.log(JSON.stringify(profiles[name], null, 2));
+            this.log('');
+          });
         })
         .then(cb);
     });
