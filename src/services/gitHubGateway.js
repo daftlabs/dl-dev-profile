@@ -4,7 +4,7 @@
 module.exports = (config = {}) => {
   const _ = config._ || require('lodash/fp');
   const github = config.github || require('octonode');
-  const utils = config.utils || require('./../helpers/utils')()
+  const utils = config.utils || require('./../helpers/utils')();
   const dataStore = require('./dataStore')();
 
   return {

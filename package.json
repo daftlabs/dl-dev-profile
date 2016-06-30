@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "aws-sdk": "^2.4.3",
     "lodash": "^4.13.1",
     "octonode": "^0.7.6",
     "vorpal": "^1.11.2"
