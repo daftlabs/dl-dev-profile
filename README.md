@@ -11,6 +11,7 @@ Get the latest Node and NPM
 rm -rf /usr/local/lib/node_modules
 brew uninstall node
 brew install node
+brew link --overwrite node
 ```
 
 Have you been sudoing when you shouldn't?
