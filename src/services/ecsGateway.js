@@ -6,11 +6,23 @@ module.exports = (config = {}) => {
   const utils = config.utils || require('./../helpers/utils')();
   const dataStore = require('./dataStore')();
 
-  return {
-    getServiceByName: name => getClient().then(getServiceByName.bind(null, name)),
-    getDefinitionByName: name => getClient().then(getDefinitionByName.bind(null, name)),
-    getDefinitionByService: name => getClient().then(getDefinitionByService.bind(null, name))
-  };
+  return utils.forOwn((func, key, obj) => {
+    obj[key] = function () {
+      var args = Array.prototype.slice.call(arguments);
+
+      return getClient()
+        .then(ecs => {
+          args.unshift(ecs);
+          return func.apply(func, args);
+        });
+    };
+  }, {
+    getServiceByName,
+    getDefinitionByName,
+    getDefinitionByService,
+    getTasksByService,
+    getContainerInstances
+  });
 
   function getClient() {
     return dataStore.profiles.getCurrent()
@@ -23,7 +35,7 @@ module.exports = (config = {}) => {
       });
   }
 
-  function getServiceByName(name, ecs) {
+  function getServiceByName(ecs, name) {
     return listClusters(ecs)
       .then(clusters => {
         let serviceQueries = [];
@@ -43,25 +55,43 @@ module.exports = (config = {}) => {
           _.head,
           _.omit(['events'])
         )(services);
-        if (!service) {
+        if (service.serviceName !== name) {
           throw new Error(`Service "${name}" not found.`);
         }
         return service;
       });
   }
 
-  function getDefinitionByService(service, ecs) {
+  function getTasksByService(ecs, service) {
+    return utils
+      .promisify(ecs.listTasks.bind(ecs, {
+        cluster: service.clusterArn,
+        serviceName: service.serviceName
+      }))
+      .then(({taskArns}) => utils.promisify(ecs.describeTasks.bind(ecs, {
+        cluster: service.clusterArn,
+        tasks: taskArns
+      })))
+      .then(res => res.tasks);
+  }
+
+  function getDefinitionByService(ecs, service) {
     return getDefinitionByName(arnToName(service.taskDefinition), ecs)
       .then(task => _.head(_.filter({name: service.serviceName}, task.taskDefinition.containerDefinitions)));
   }
 
-  function getDefinitionByName(taskDefinition, ecs) {
+  function getDefinitionByName(ecs, taskDefinition) {
     return utils.promisify(ecs.describeTaskDefinition.bind(ecs, {taskDefinition}));
   }
 
   function listClusters(ecs) {
     return utils.promisify(ecs.listClusters.bind(ecs))
       .then(res => _.map(arnToName, res.clusterArns));
+  }
+
+  function getContainerInstances(ecs, clusterArn, containerInstances) {
+    return utils.promisify(ecs.describeContainerInstances.bind(ecs, {cluster: arnToName(clusterArn), containerInstances}))
+      .then(res => res.containerInstances);
   }
 
   function arnToName(arn) {
