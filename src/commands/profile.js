@@ -61,6 +61,7 @@ module.exports = (config = {}) => {
               return this.log(`Unknown profile "${name}".`);
             }
             return dataStore.profiles.setCurrent(name)
+              .then(vorpal.delimiter(`${name}:`))
               .then(() => console.log(`Current profile set to "${name}".`));
           })
           .then(cb);
