@@ -7,7 +7,14 @@ const utils = require('./helpers/utils')();
 const COMMANDS_DIR = `${__dirname}/commands`;
 
 utils.promisify(fs.readdir.bind(fs, COMMANDS_DIR))
-  .then(_.map.bind(_, file => require(`${COMMANDS_DIR}/${file}`.replace(/\.js$/, ''))({vorpal})));
+  .then(_.map.bind(_, file => require(`${COMMANDS_DIR}/${file}`.replace(/\.js$/, ''))()))
+  .then(groups => _.reduce((group, commands) => commands.concat(group), [], groups)
+    .forEach(command => vorpal
+      .command(command.command)
+      .autocomplete(command.autocomplete)
+      .action((args, cb) => command.action(args)
+        .then(cb)
+        .catch(err => console.error(err.stack)))));
 
 vorpal
   .delimiter('Daftswag$')
