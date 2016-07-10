@@ -21,7 +21,7 @@ module.exports = (config = {}) => {
     getDefinitionByName,
     getDefinitionByService,
     getTasksByService,
-    getContainerInstances
+    getContainerInstances,
   });
 
   function getClient() {
@@ -90,7 +90,10 @@ module.exports = (config = {}) => {
   }
 
   function getContainerInstances(ecs, clusterArn, containerInstances) {
-    return utils.promisify(ecs.describeContainerInstances.bind(ecs, {cluster: arnToName(clusterArn), containerInstances}))
+    return utils.promisify(ecs.describeContainerInstances.bind(ecs, {
+      cluster: arnToName(clusterArn),
+      containerInstances
+    }))
       .then(res => res.containerInstances);
   }
 
