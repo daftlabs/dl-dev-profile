@@ -12,11 +12,8 @@ module.exports = (config = {}) => {
   return [{
     command: ['list-releases [project]', 'Show a sorted list of release tags.', {}],
     autocomplete: autocompleteRepositories,
-    action: ({project}, cb) => {
-      return buildGitHubGateway()
-        .listTags(project)
-        .then(tags => console.log(JSON.stringify(tags, null, 2)))
-        .then(cb)
-    }
+    action: ({project}, cb) => buildGitHubGateway()
+      .listTags(project)
+      .then(tags => JSON.stringify(tags, null, 2))
   }];
 };

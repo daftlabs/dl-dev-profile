@@ -23,9 +23,7 @@ module.exports = (config = {}) => {
           instances = res;
           return ec2Gateway.describeInstances(_.map(instance => instance.ec2InstanceId, instances));
         })
-        .then(nodes => {
-          console.log(JSON.stringify({service, tasks, instances, nodes}, null, 2));
-        })
+        .then(nodes => JSON.stringify({service, tasks, instances, nodes}, null, 2));
     }
   }];
 };
