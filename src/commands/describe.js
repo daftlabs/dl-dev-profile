@@ -9,6 +9,10 @@ module.exports = (config = {}) => {
     action: (project, environment) => awsGateway
       .describeService(`${project}-${environment}`)
       .then(({service, tasks, taskDefinition, nodes}) => {
+        const environment = {};
+        const names = [taskDefinition.family, 'web', project];
+        (_.get('environment', _.find(_.partial(names.includes), taskDefinition.containerDefinitions)) || [])
+          .forEach(({name, value}) => environment[name] = value);
         return JSON.stringify({
           service: {
             deployments: _.map(
@@ -19,7 +23,8 @@ module.exports = (config = {}) => {
           tasks: tasks.length,
           taskDefinition: {
             revision: taskDefinition.revision,
-            containers: _.map(_.pick(['name', 'image']), taskDefinition.containerDefinitions)
+            containers: _.map(_.pick(['name', 'image']), taskDefinition.containerDefinitions),
+            environment
           },
           nodes: _.map(_.pick(['PublicIpAddress']), nodes)
         }, null, 2);
