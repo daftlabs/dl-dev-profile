@@ -5,11 +5,16 @@ const program = require('commander');
 
 const COMMANDS_DIR = `${__dirname}/commands`;
 
+program
+  .command('*')
+  .description('Command missing fallthrough.')
+  .action(name => program.parse(process.argv.slice(0, 2).concat('-h')));
+
 utils.promisify(fs.readdir.bind(fs, COMMANDS_DIR))
   .then(_.map.bind(_, file => require(`${COMMANDS_DIR}/${file}`.replace(/\.js$/, ''))()))
   .then(groups => _.reduce((group, commands) => commands.concat(group), [], groups))
-  .then(_.each.bind(_, ({command, options, description, action}) => {
-    const cmd = program
+  .then(_.each.bind(_, ({command, description, action}) => {
+    program
       .command(command)
       .description(description || command)
       .action(function () {
@@ -22,7 +27,6 @@ utils.promisify(fs.readdir.bind(fs, COMMANDS_DIR))
           handleError(err);
         }
       });
-    (options || []).forEach(cmd.option.bind(cmd));
   }))
   .then(program.parse.bind(program, process.argv));
 

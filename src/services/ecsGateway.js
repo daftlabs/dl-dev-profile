@@ -81,7 +81,8 @@ module.exports = (config = {}) => {
   }
 
   function getDefinitionByName(ecs, taskDefinition) {
-    return utils.promisify(ecs.describeTaskDefinition.bind(ecs, {taskDefinition}));
+    return utils.promisify(ecs.describeTaskDefinition.bind(ecs, {taskDefinition}))
+      .then(res => res.taskDefinition);
   }
 
   function listClusters(ecs) {
