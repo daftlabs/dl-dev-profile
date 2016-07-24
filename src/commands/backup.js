@@ -16,7 +16,7 @@ module.exports = (config = {}) => {
   };
 
   return [{
-    command: 'backup [project] [environment]',
+    command: 'backup <project> <environment>',
     description: "Create a MySQL backup of a project's db.",
     action: (project, environment) => {
       return ecsGateway

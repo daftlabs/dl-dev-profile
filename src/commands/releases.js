@@ -4,7 +4,7 @@ module.exports = (config = {}) => {
   const buildGitHubGateway = config.buildGithubAPI || require('./../services/gitHubGateway');
 
   return [{
-    command: 'list-releases [project]',
+    command: 'list-releases <project>',
     description: 'Show a sorted list of release tags.',
     action: project => buildGitHubGateway()
       .listTags(project)

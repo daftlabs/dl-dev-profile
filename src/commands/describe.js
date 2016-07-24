@@ -4,7 +4,7 @@ module.exports = (config = {}) => {
   const awsGateway = config.awsGateway || require('./../services/awsGateway')();
 
   return [{
-    command: 'describe [project] [environment]',
+    command: 'describe <project> <environment>',
     description: 'Describe currently deployed project.',
     action: (project, environment) => awsGateway
       .describeService(`${project}-${environment}`)

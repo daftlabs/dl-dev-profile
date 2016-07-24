@@ -5,7 +5,7 @@ module.exports = (config = {}) => {
   const inquirer = config.inquirer || require('inquirer');
 
   return [{
-    command: 'profile-save [name]',
+    command: 'profile-save <name>',
     description: 'Configure an AWS profile.',
     action: name => dataStore.profiles.get(name, {})
       .then(existing => inquirer.prompt([{
@@ -37,7 +37,7 @@ module.exports = (config = {}) => {
       .then(answers => dataStore.profiles.set(name, answers))
       .then(() => `Profile "${name}" saved.`)
   }, {
-    command: 'profile-use [name]',
+    command: 'profile-use <name>',
     description: 'Set current AWS profile for use in other commands.',
     action: name => dataStore.profiles.get(name)
       .then(profile => {
@@ -48,7 +48,7 @@ module.exports = (config = {}) => {
           .then(() => `Current profile set to "${name}".`);
       })
   }, {
-    command: 'profile-remove [name]',
+    command: 'profile-remove <name>',
     description: 'Delete an AWS profile.',
     action: name => dataStore.profiles.getCurrent()
       .then(currentProfile => {
@@ -65,7 +65,7 @@ module.exports = (config = {}) => {
           .then(() => `Profile "${name}" deleted.`);
       })
   }, {
-    command: 'profile-list [name]',
+    command: 'profile-list <name>',
     description: 'List all saved AWS profiles.',
     action: name => Promise.all([
       dataStore.profiles.getAll(),

@@ -39,10 +39,12 @@ module.exports = (config = {}) => {
       .then(clusters => {
         let serviceQueries = [];
         clusters.forEach(cluster => {
-          const query = utils.promisify(ecs.describeServices.bind(ecs, {
-            services: [name],
-            cluster
-          })).catch(null);
+          const query = utils
+            .promisify(ecs.describeServices.bind(ecs, {
+              services: [name],
+              cluster
+            }))
+            .catch(() => null);
           serviceQueries.push(query);
         });
         return Promise.all(serviceQueries)
@@ -50,9 +52,8 @@ module.exports = (config = {}) => {
       .then(services => {
         const service = _.flow(
           _.reduce((carry, res) => carry.concat(res.services), []),
-          _.filter({status: 'ACTIVE'}),
-          _.head,
-          _.omit(['events'])
+          _.filter(({status}) => status === 'ACTIVE'),
+          _.head
         )(services);
         if (service.serviceName !== name) {
           throw new Error(`Service "${name}" not found.`);
