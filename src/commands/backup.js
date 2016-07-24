@@ -24,8 +24,13 @@ module.exports = (config = {}) => {
         .then(service => ecsGateway.getDefinitionByName(service.taskDefinition))
         .then(({family, revision, containerDefinitions}) => {
           const names = [family, 'web', project];
-          const creds = getDBCreds(_.get('environment', _.find(_.partial(names.includes), containerDefinitions)));
-          return mysqlDump(`${project}-backups`, `${family}-${revision}-${new Date().getTime()}.sql`, creds);
+          const container = _.find(_.partial(names.includes), containerDefinitions);
+          const version = container.image.split(':').pop();
+          return mysqlDump(
+            `${project}-backups`,
+            `${family}:${revision}-${version}-${new Date().getTime()}.sql`,
+            getDBCreds(container.environment)
+          );
         })
         .then(filePath => `Successfully backed up ${project}-${environment} to ${filePath}`)
     }
