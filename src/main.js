@@ -1,3 +1,4 @@
+'use strict';
 const _ = require('lodash/fp');
 const fs = require('fs');
 const utils = require('./helpers/utils')();

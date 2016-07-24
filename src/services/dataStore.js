@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = (config = {}) => {
   const fs = config.fs || require('fs');
   const _ = config._ || require('lodash/fp');
@@ -10,9 +9,13 @@ module.exports = (config = {}) => {
     profiles: {
       getAll: getKey.bind(null, 'profiles', {}),
       setAll: setKey.bind(null, 'profiles'),
-      get: (name, def = null) => getKey('profiles', {}).then(profiles => profiles.hasOwnProperty(name) ? profiles[name] : def),
-      set: (name, data) => getKey('profiles', {}).then(profiles => _.assign(profiles, {[name]: data})).then(setKey.bind(null, 'profiles')),
-      getCurrent: () => getKey('currentProfile').then(name => getKey('profiles', {}).then(profiles => _.assign(profiles[name], {name}))),
+      get: (name, def = null) => getKey('profiles', {})
+        .then(profiles => profiles.hasOwnProperty(name) ? profiles[name] : def),
+      set: (name, data) => getKey('profiles', {})
+        .then(profiles => _.assign(profiles, {[name]: data}))
+        .then(setKey.bind(null, 'profiles')),
+      getCurrent: () => getKey('currentProfile')
+        .then(name => getKey('profiles', {}).then(profiles => _.assign(profiles[name], {name}))),
       setCurrent: setKey.bind(null, 'currentProfile')
     }
   };
@@ -27,11 +30,6 @@ module.exports = (config = {}) => {
     return loadAll()
       .then(data => _.assign(data, {[key]: value}))
       .then(storeAll);
-  }
-
-  function getCurrentProfile() {
-    return getKey('currentProfile')
-      .then(name => getKey('profiles', {}).then(profiles => profiles[name]));
   }
 
   function loadAll() {

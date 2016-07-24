@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = (config = {}) => {
   const AWS = config.AWS || require('aws-sdk');
   const _ = config._ || require('lodash/fp');

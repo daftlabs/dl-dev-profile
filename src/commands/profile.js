@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = (config = {}) => {
   const _ = config._ || require('lodash/fp');
   const dataStore = config.dataStore || require('./../services/dataStore')();

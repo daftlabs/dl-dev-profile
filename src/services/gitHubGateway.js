@@ -1,6 +1,4 @@
 'use strict';
-
-
 module.exports = (config = {}) => {
   const _ = config._ || require('lodash/fp');
   const github = config.github || require('octonode');
@@ -8,13 +6,8 @@ module.exports = (config = {}) => {
   const dataStore = require('./dataStore')();
 
   return {
-    listRepositories: () => getClient().then(client => listRepositories(client.me())),
     listTags: name => getClient().then(client => listTags(client.repo(name)))
   };
-
-  function listRepositories(ghme) {
-    return utils.promisify(ghme.repos.bind(ghme, {per_page: 100}));
-  }
 
   function listTags(ghrepo) {
     return utils.promisify(ghrepo.tags.bind(ghrepo))
