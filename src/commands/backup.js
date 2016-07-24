@@ -3,9 +3,10 @@ module.exports = (config = {}) => {
   const _ = config._ || require('lodash/fp');
   const childProcess = config.childProcess || require('child_process');
   const moment = config.moment || require('moment');
-  const fs = config.fs || require('fs');
   const ecsGateway = config.ecsGateway || require('./../services/ecsGateway')();
+  const awsGateway = config.awsGateway || require('./../services/awsGateway')();
   const utils = config.utils || require('./../helpers/utils')();
+  const dataStore = config.dataStore || require('./../services/dataStore')();
   const MYSQL_CREDS_MAP = {
     host: ['DB_HOST', 'MYSQL_HOST'],
     port: ['DB_PORT', 'MYSQL_PORT'],
@@ -24,7 +25,7 @@ module.exports = (config = {}) => {
         .then(({family, revision, containerDefinitions}) => {
           const names = [family, 'web', project];
           const creds = getDBCreds(_.get('environment', _.find(_.partial(names.includes), containerDefinitions)));
-          return mysqlDump(`${__dirname}/../../backups/${family}:${revision}-${new Date().getTime()}.sql`, creds);
+          return mysqlDump(`${project}-backups`, `${family}-${revision}-${new Date().getTime()}.sql`, creds);
         })
         .then(filePath => `Successfully backed up ${project}-${environment} to ${filePath}`)
     }
@@ -47,23 +48,32 @@ module.exports = (config = {}) => {
     return creds;
   }
 
-  function mysqlDump(fileName, {host, port, user, pass, name}) {
-    return new Promise(function (resolve, reject) {
-      const dumpFileStream = fs.createWriteStream(fileName);
-      const mysqlDump = childProcess.spawn('mysqldump', [
-        `--host=${host}`,
-        `--user=${user}`,
-        `--password=${pass}`,
-        `--port=${port}`,
-        '--single-transaction',
-        name
-      ]);
-      mysqlDump.stdout.pipe(dumpFileStream);
-      mysqlDump.stdout.on('data', data => console.log(data.toString()));
-      mysqlDump.stderr.on('data', data => console.log(data.toString()));
-      mysqlDump
-        .on('finish', () => resolve(fileName))
-        .on('error', reject);
-    });
+  function mysqlDump(Bucket, fileName, {host, port, user, pass, name}) {
+    return dataStore.profiles
+      .getCurrent()
+      .then(({awsAccessKeyId, awsSecretAccessKey}) => {
+        return awsGateway.createUploadStream(Bucket, fileName, {
+          accessKeyId: awsAccessKeyId,
+          secretAccessKey: awsSecretAccessKey,
+        });
+      })
+      .then(s3 => {
+        return new Promise((resolve, reject) => {
+          const mysqlDump = childProcess.spawn('mysqldump', [
+            `--host=${host}`,
+            `--user=${user}`,
+            `--password=${pass}`,
+            `--port=${port}`,
+            '--single-transaction',
+            name
+          ]);
+          mysqlDump.stdout.pipe(s3);
+          mysqlDump.stdout.on('data', data => console.log(data.toString()));
+          mysqlDump.stderr.on('data', data => console.log(data.toString()));
+          mysqlDump
+            .on('finish', () => resolve(fileName))
+            .on('error', reject);
+        });
+      });
   }
 };
