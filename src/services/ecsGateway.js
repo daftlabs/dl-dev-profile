@@ -55,7 +55,7 @@ module.exports = (config = {}) => {
           _.filter(({status}) => status === 'ACTIVE'),
           _.head
         )(services);
-        if (service.serviceName !== name) {
+        if ((service || {}).serviceName !== name) {
           throw new Error(`Service "${name}" not found.`);
         }
         return service;

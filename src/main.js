@@ -14,8 +14,8 @@ program
 utils.promisify(fs.readdir.bind(fs, COMMANDS_DIR))
   .then(_.map.bind(_, file => require(`${COMMANDS_DIR}/${file}`.replace(/\.js$/, ''))()))
   .then(groups => _.reduce((group, commands) => commands.concat(group), [], groups))
-  .then(_.each.bind(_, ({command, description, action}) => {
-    program
+  .then(_.each.bind(_, ({command, description, options, action}) => {
+    const cmd = program
       .command(command)
       .description(description || command)
       .action(function () {
@@ -28,6 +28,7 @@ utils.promisify(fs.readdir.bind(fs, COMMANDS_DIR))
           handleError(err);
         }
       });
+    (options || []).forEach(option => cmd.option(...option));
   }))
   .then(program.parse.bind(program, process.argv));
 
