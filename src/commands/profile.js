@@ -3,17 +3,13 @@
 module.exports = (config = {}) => {
   const _ = config._ || require('lodash/fp');
   const dataStore = config.dataStore || require('./../services/dataStore')();
-  const vorpal = config.vorpal;
-
-  const autocompleteProfileNames = {
-    data: () => dataStore.profiles.getAll().then(_.keys)
-  };
+  const inquirer = config.inquirer || require('inquirer');
 
   return [{
-    command: ['profile save <name>', 'Configure an AWS profile.', {}],
-    autocomplete: autocompleteProfileNames,
-    action: ({name, action}) => dataStore.profiles.get(name, {})
-      .then(existing => action.prompt([{
+    command: 'profile-save <name>',
+    description: 'Configure an AWS profile.',
+    action: name => dataStore.profiles.get(name, {})
+      .then(existing => inquirer.prompt([{
         name: 'awsAccessKeyId',
         message: 'AWS Access Key Id: ',
         default: existing.awsAccessKeyId,
@@ -40,26 +36,25 @@ module.exports = (config = {}) => {
         validate: Boolean
       }]))
       .then(answers => dataStore.profiles.set(name, answers))
+      .then(() => `Profile "${name}" saved.`)
   }, {
-    command: ['profile use <name>', 'Set current AWS profile for use in other commands.', {}],
-    autocomplete: autocompleteProfileNames,
-    action: ({name}) => dataStore.profiles.get(name)
+    command: 'profile-use <name>',
+    description: 'Set current AWS profile for use in other commands.',
+    action: name => dataStore.profiles.get(name)
       .then(profile => {
         if (!profile) {
           throw new Error(`Unknown profile "${name}".`);
         }
         return dataStore.profiles.setCurrent(name)
-          .then(vorpal.delimiter(`${name}:`))
           .then(() => `Current profile set to "${name}".`);
       })
   }, {
-    command: ['profile remove <name>', 'Delete an AWS profile.', {}],
-    autocomplete: autocompleteProfileNames,
-    action: ({name}) => dataStore.profiles.getCurrent()
+    command: 'profile-remove <name>',
+    description: 'Delete an AWS profile.',
+    action: name => dataStore.profiles.getCurrent()
       .then(currentProfile => {
         if (currentProfile.name === name) {
           return dataStore.profiles.setCurrent(null)
-            .then(() => vorpal.delimiter('Daftswag'));
         }
       })
       .then(() => dataStore.profiles.getAll())
@@ -71,9 +66,9 @@ module.exports = (config = {}) => {
           .then(() => `Profile "${name}" deleted.`);
       })
   }, {
-    command: ['profile list [name]', 'List all saved AWS profiles.', {}],
-    autocomplete: autocompleteProfileNames,
-    action: ({name}) => Promise.all([
+    command: 'profile-list [name]',
+    description: 'List all saved AWS profiles.',
+    action: name => Promise.all([
       dataStore.profiles.getAll(),
       dataStore.profiles.getCurrent()
     ])
