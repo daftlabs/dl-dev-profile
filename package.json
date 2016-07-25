@@ -2,6 +2,7 @@
   "dependencies": {
     "aws-sdk": "^2.4.3",
     "commander": "^2.9.0",
+    "deep-diff": "^0.3.4",
     "lodash": "^4.13.1",
     "octonode": "^0.7.6",
     "s3-stream-upload": "^2.0.0",

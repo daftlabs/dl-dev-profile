@@ -21,6 +21,8 @@ module.exports = (config = {}) => {
     getDefinitionByService,
     getTasksByService,
     getContainerInstances,
+    registerTaskDefinition,
+    updateService
   });
 
   function getClient() {
@@ -100,5 +102,16 @@ module.exports = (config = {}) => {
 
   function arnToName(arn) {
     return _.last(arn.split('/'));
+  }
+
+  function registerTaskDefinition(ecs, definition) {
+    return utils.promisify(ecs.registerTaskDefinition.bind(ecs, definition))
+      .then(res => res.taskDefinition);
+  }
+
+  function updateService(ecs, serviceArn, clusterArn, desiredCount, taskDefinitionArn) {
+    return utils.promisify(ecs.updateService.bind(ecs, {
+      service: serviceArn, cluster: clusterArn, desiredCount, taskDefinition: taskDefinitionArn
+    })).then(res => res.service);
   }
 };
