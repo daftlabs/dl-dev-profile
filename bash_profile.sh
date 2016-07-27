@@ -10,6 +10,10 @@ WHITE="\[\e[0;37m\]"
 PURPLE="\[\e[0;35m\]"
 BLUE="\[\e[1;34m\]"
 
+function getTime() {
+  date +%H:%M:%S
+}
+
 function ref() {
   git branch --no-color 2>/dev/null | sed -e "/^[^*]/d" -e "s/* \(.*\)/\[\1\]/" || return
 }
@@ -48,10 +52,12 @@ alias dkill="docker kill \$(docker ps -q)"
 alias drmc="docker rm \$(docker ps -aq)"
 alias drmi="docker rmi \$(docker images -q)"
 
+eval "$(docker-machine env default)"
+
 #misc
 #======================================================================
 alias gs="git status";
 alias l="ls -lhaG";
 alias dl="node ~/.daftlabs/src/main.js";
 
-PS1="$GREEN\u@\h$CYAN\$(ref)$PURPLE\$(sha)$BLUE\w\[\e[0m\]: "
+PS1="$GREEN\u@\h$WHITE[\$(getTime)]$CYAN\$(ref)$PURPLE\$(sha)$BLUE\w\[\e[0m\]: "
