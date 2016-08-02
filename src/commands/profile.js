@@ -65,7 +65,7 @@ module.exports = (config = {}) => {
           .then(() => `Profile "${name}" deleted.`);
       })
   }, {
-    command: 'profile-list <name>',
+    command: 'profile-list [name]',
     description: 'List all saved AWS profiles.',
     action: name => Promise.all([
       dataStore.profiles.getAll(),
