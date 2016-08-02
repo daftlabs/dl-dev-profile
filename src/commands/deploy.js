@@ -17,9 +17,9 @@ module.exports = (config = {}) => {
           return {
             name,
             value: name === 'APP_VERSION' ? tag : value
-          }
+          };
         }, definition.environment)
-      })
+      });
     }, containers);
   }
 
