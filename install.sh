@@ -5,7 +5,7 @@ HERE=~/.daftlabs
 
 #download app
 mkdir -p ${HERE}
-#curl -L https://github.com/daftlabs/dl-dev-profile/archive/master.tar.gz | tar -zx -C ~/.daftlabs --strip-components=1
+curl -L https://github.com/daftlabs/dl-dev-profile/archive/master.tar.gz | tar -zx -C ${HERE} --strip-components=1
 cd ${HERE}
 grep -q -F 'source ~/.daftlabs/bash_profile.sh' ~/.bash_profile || echo 'source ~/.daftlabs/bash_profile.sh' >> ~/.bash_profile
 
