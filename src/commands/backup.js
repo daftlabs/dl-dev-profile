@@ -2,7 +2,6 @@
 module.exports = (config = {}) => {
   const _ = config._ || require('lodash/fp');
   const childProcess = config.childProcess || require('child_process');
-  const moment = config.moment || require('moment');
   const ecsGateway = config.ecsGateway || require('./../services/ecsGateway')();
   const awsGateway = config.awsGateway || require('./../services/awsGateway')();
   const utils = config.utils || require('./../helpers/utils')();
