@@ -15,6 +15,8 @@ brew uninstall node
 brew install node
 brew link --overwrite node
 
+brew install mysql
+
 #install dependencies
 npm install
 
