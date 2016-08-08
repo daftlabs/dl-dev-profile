@@ -31,7 +31,7 @@ module.exports = (config = {}) => {
             getDBCreds(container.environment)
           );
         })
-        .then(filePath => `Successfully backed up ${project}-${environment} to ${filePath}`)
+        .then(filePath => `Successfully backed up ${project}-${environment} to ${filePath}`);
     }
   }];
 
@@ -75,7 +75,7 @@ module.exports = (config = {}) => {
           mysqlDump.stdout.on('data', data => console.log(data.toString()));
           mysqlDump.stderr.on('data', data => console.log(data.toString()));
           mysqlDump
-            .on('finish', () => resolve(fileName))
+            .on('exit', () => resolve(fileName))
             .on('error', reject);
         });
       });

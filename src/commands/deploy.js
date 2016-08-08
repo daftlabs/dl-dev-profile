@@ -39,7 +39,7 @@ module.exports = (config = {}) => {
       ['-c, --count [n]', 'Desired number of tasks', 1]
     ],
     action: (project, environment, tag, command) => {
-      return command.backup == 1 ? backup(project, environment) : new Promise(resolve => resolve())
+      return (command.backup == 1 ? backup(project, environment) : new Promise(resolve => resolve()))
         .then(() => awsGateway.describeService(`${project}-${environment}`))
         .then(({service, taskDefinition}) => {
           let definition = buildNewTask(project, tag, taskDefinition);
