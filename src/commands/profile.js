@@ -33,6 +33,11 @@ module.exports = (config = {}) => {
         message: 'Pivotal API Token: ',
         default: existing.pivotalToken,
         validate: Boolean
+      }, {
+        name: 'googleClientSecretFile',
+        message: 'OAuth 2.0 Credentials JSON file',
+        default: existing.googleClientSecretFile,
+        validate: Boolean
       }]))
       .then(answers => dataStore.profiles.set(name, answers))
       .then(() => `Profile "${name}" saved.`)
