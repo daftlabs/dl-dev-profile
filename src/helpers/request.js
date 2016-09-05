@@ -4,7 +4,8 @@ module.exports = (config = {}) => {
   const qs = config.querystring || require('querystring');
 
   return {
-    post: makeRequest.bind(null, 'post')
+    post: makeRequest.bind(null, 'post'),
+    put: makeRequest.bind(null, 'put')
   };
 
   function makeRequest(method, url, form = {}, headers = {}) {

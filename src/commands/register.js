@@ -5,16 +5,17 @@ module.exports = (config = {}) => {
   const dataStore = config.dataStore || require('./../services/dataStore')();
 
   return [{
-    command: 'register <email> <pivotalProjectId>',
+    command: 'register <email> <githubUsername> <pivotalProjectId>',
     description: "Register a DL employee.",
-    action: (email, pivotalProjectId) => {
+    action: (email, githubUsername, pivotalProjectId) => {
       let profile;
       return dataStore.profiles.getCurrent()
         .then(currentProfile => {
           profile = currentProfile;
           return registerSlack(email, profile.slackToken);
         })
-        .then(() => registerPivotal(pivotalProjectId, email, profile.pivotalToken));
+        .then(() => registerPivotal(pivotalProjectId, email, profile.pivotalToken))
+        .then(() => registerGitHub(githubUsername, profile.githubUsername, profile.githubPassword));
     }
   }];
 
@@ -35,6 +36,14 @@ module.exports = (config = {}) => {
     }, {
       'X-TrackerToken': token,
       'Content-Type': 'application/json'
+    });
+  }
+
+  function registerGitHub(username, authUser, authPass) {
+    const GITHUB_ENGINEERS = 894740;
+    const token = [authUser, authPass].join(':');
+    return request.put(`https://api.github.com/teams/${GITHUB_ENGINEERS}/memberships/${username}`, {}, {
+      Authorization: 'Basic ' + new Buffer(token).toString('base64')
     });
   }
 };
