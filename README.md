@@ -4,6 +4,10 @@ run this
 curl -L https://raw.githubusercontent.com/daftlabs/dl-dev-profile/master/install.sh | bash
 ```
 
+###Auth Tokens
+- Pivotal Token: https://www.pivotaltracker.com/profile
+- Slack Token: https://api.slack.com/docs/oauth-test-tokens
+
 ========================================================================
 
 Get the latest Node and NPM

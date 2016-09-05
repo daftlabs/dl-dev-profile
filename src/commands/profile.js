@@ -33,6 +33,11 @@ module.exports = (config = {}) => {
         message: 'Pivotal API Token: ',
         default: existing.pivotalToken,
         validate: Boolean
+      }, {
+        name: 'slackToken',
+        message: 'Slack API Token: ',
+        default: existing.slackToken,
+        validate: Boolean
       }]))
       .then(answers => dataStore.profiles.set(name, answers))
       .then(() => `Profile "${name}" saved.`)
