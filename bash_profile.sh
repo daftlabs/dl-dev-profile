@@ -49,7 +49,7 @@ dssh() {
 alias drun="docker-compose run web"
 alias dash="docker-compose run web /bin/bash"
 alias dkill="docker kill \$(docker ps -q)"
-alias drmc="docker rm \$(docker ps -aq)"
+alias drmc="docker rm -v \$(docker ps -aq)"
 alias drmi="docker rmi \$(docker images -q)"
 
 eval "$(docker-machine env default)"
