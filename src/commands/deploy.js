@@ -24,7 +24,7 @@ module.exports = (config = {}) => {
   }
 
   function buildNewTask(project, tag, oldTask) {
-    oldTask = _.pick(['family', 'containerDefinitions'], oldTask);
+    oldTask = _.pick(['family', 'containerDefinitions', 'taskRoleArn'], oldTask);
     const newTask = _.assign(oldTask, {
       containerDefinitions: updateContainers([oldTask.family, 'web', project], tag, oldTask.containerDefinitions)
     });
