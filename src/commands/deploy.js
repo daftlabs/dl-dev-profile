@@ -4,7 +4,6 @@ module.exports = (config = {}) => {
   const deepDiff = config.deepDiff || require('deep-diff');
   const awsGateway = config.awsGateway || require('./../services/awsGateway')();
   const ecsGateway = config.ecsGateway || require('./../services/ecsGateway')();
-  const backup = config.backup || _.get('0.action', require('./backup')());
 
   function updateContainers(names, tag, containers) {
     return _.map(definition => {
@@ -35,12 +34,10 @@ module.exports = (config = {}) => {
     command: 'deploy <project> <environment> <tag>',
     description: 'Deploy project',
     options: [
-      ['-b, --backup [1/0]', 'Backup the DB', 1],
       ['-c, --count [n]', 'Desired number of tasks', 1]
     ],
     action: (project, environment, tag, command) => {
-      return (command.backup == 1 ? backup(project, environment) : new Promise(resolve => resolve()))
-        .then(() => awsGateway.describeService(`${project}-${environment}`))
+      return awsGateway.describeService(`${project}-${environment}`)
         .then(({service, taskDefinition}) => {
           let definition = buildNewTask(project, tag, taskDefinition);
           return (definition
