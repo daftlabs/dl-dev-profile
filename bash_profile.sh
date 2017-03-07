@@ -43,5 +43,6 @@ alias drmi="docker rmi \$(docker images -q)"
 alias gs="git status";
 alias l="ls -lhaG";
 alias dl="node ~/.daftlabs/src/main.js";
+alias e="vim ."
 
 PS1="$GREEN\u@\h$WHITE[\$(getTime)]$CYAN\$(ref)$PURPLE\$(sha)$BLUE\w\[\e[0m\]: "
